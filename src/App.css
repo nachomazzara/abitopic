@@ -1,0 +1,181 @@
+.App {
+  text-align: center;
+  max-width: 1200px;
+  width: calc(100% - 40px);
+  margin: 0 20px;
+}
+
+.App .header {
+  text-align: right;
+  margin-bottom: 40px;
+  font-size: 14px;
+}
+
+.App .header p {
+  font-size: 16px;
+  text-transform: capitalize;
+  margin-bottom: 0;
+}
+
+.App .header a {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #14517e;
+}
+
+.App input, textarea {
+  border: 1px solid #d8d8d8;
+  padding: 10px;
+  outline: none;
+  font-weight: 100;
+}
+
+.App input::placeholder, textarea::placeholder {
+  opacity: 0.5;
+}
+
+.App input:focus, textarea.abi:focus {
+  border: 1px solid #76a5f5;
+  box-shadow: inset 0 0 0 1px #76a5f5;
+}
+
+.App input {
+  max-width: 300px;
+  width: 100%;
+}
+
+.App textarea.abi{
+  width: calc(100% - 40px);
+  height: 200px;
+  max-width: 1024px;
+}
+
+.App .error {
+  color: #ff4b4b;
+  font-size: 20px;
+}
+
+.App .events {
+  text-align: left;
+  margin-bottom: 60px
+}
+
+.App .events .event {
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.App .events .event p:first-child {
+  color: #3498db;
+  margin-bottom: 10px;
+  font-size: 15px
+}
+
+.App .events .event p + p {
+  color:#828282;
+  margin-top: 0;
+  font-size: 12px;
+}
+
+.event textarea {
+  color:#828282;
+  border: none;
+  outline: none;
+  background: transparent;
+  display: inline-block;
+  padding: 0;
+  resize: none;
+  vertical-align: middle;
+  height: auto;
+  width: 100%;
+  font-size: 12px;
+}
+
+.App .events .event p + p button {
+  border: none;
+  font-style: italic;
+  cursor: pointer;
+  outline: none;
+  float: none;
+  margin-top: 0;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+}
+
+.App .footer{
+  position: fixed;
+  bottom: 0px;
+  right: 0;
+  width: 100%;
+  text-align: right;
+  background: #1f1f1f;
+  height: 60px;
+}
+
+.App  .footer a {
+  color: white;
+  font-size: 18px;
+  text-decoration: none;
+  margin-top: 16px;
+  display: block;
+  margin-right: 20px;
+}
+
+@media(min-width: 620px) {
+  .App .events .event p + p {
+    font-size: 12px;
+  }
+
+  .event textarea {
+    width: 480px;
+    margin-left: 7px;
+    height: 17px;
+  }
+
+  .App .events .event p + p button {
+    float: right;
+    margin-top: -1px;
+    width: auto;
+    text-align: right;
+  }
+}
+
+@media(min-width: 768px) {
+  .App .events .event p:first-child {
+    font-size: 16px;
+  }
+
+  .App .events .event p + p {
+    font-size: 14px;
+  }
+
+  .event textarea {
+    height: 18px;
+    width: 600px;
+    font-size: 14px;
+    margin-left: 7px;
+  }
+
+  .App .events .event p + p button {
+    margin-top: 0;
+  }
+}
+
+@media(min-width: 992px) {
+  .App .wrapper{
+    display: flex;
+    text-align: center;
+  }
+
+  .App .wrapper div {
+    width: 50%
+  }
+
+  .App input, textarea {
+    font-size: 16px
+  }
+  
+  .App input {
+    max-width: 420px;
+  }
+}
