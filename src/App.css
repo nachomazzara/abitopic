@@ -24,6 +24,10 @@
   color: #14517e;
 }
 
+.App strong {
+  font-weight: 400;
+}
+
 .App input, textarea {
   border: 1px solid #d8d8d8;
   padding: 10px;
@@ -56,29 +60,49 @@
   font-size: 20px;
 }
 
-.App .events {
+.App .tabs {
+  margin: 50px auto;
+}
+
+.App .tabs a {
+  cursor: pointer;
+  padding: 0 20px;
+  border-right: 1px solid #383838;
+  font-size: 22px;
+}
+
+.App .tabs a.active, .App .tabs a:hover {
+  text-decoration: underline;
+  color: #3498db;
+}
+
+.App .tabs a:last-child {
+  border: none;  
+}
+
+.App .results {
   text-align: left;
   margin-bottom: 60px
 }
 
-.App .events .event {
+.App .results .result {
   border-bottom: 1px solid #e6e6e6;
 }
 
-.App .events .event p:first-child {
+.App .results .result p:first-child {
   color: #3498db;
   margin-bottom: 10px;
   font-size: 15px;
   word-break: break-all;
 }
 
-.App .events .event p + p {
+.App .results .result p + p {
   color:#828282;
   margin-top: 0;
   font-size: 12px;
 }
 
-.event textarea {
+.result textarea {
   color:#828282;
   border: none;
   outline: none;
@@ -92,7 +116,7 @@
   font-size: 12px;
 }
 
-.App .events .event p + p button {
+.App .results .result p + p button {
   border: none;
   font-style: italic;
   cursor: pointer;
@@ -125,17 +149,17 @@
 }
 
 @media(min-width: 620px) {
-  .App .events .event p + p {
+  .App .results .result p + p {
     font-size: 12px;
   }
 
-  .event textarea {
+  .result textarea {
     width: 480px;
     margin-left: 7px;
     height: 17px;
   }
 
-  .App .events .event p + p button {
+  .App .results .result p + p button {
     float: right;
     margin-top: -1px;
     width: auto;
@@ -145,22 +169,22 @@
 }
 
 @media(min-width: 768px) {
-  .App .events .event p:first-child {
+  .App .results .result p:first-child {
     font-size: 16px;
   }
 
-  .App .events .event p + p {
+  .App .results .result p + p {
     font-size: 14px;
   }
 
-  .event textarea {
+  .result textarea {
     height: 18px;
     width: 600px;
     font-size: 14px;
     margin-left: 7px;
   }
 
-  .App .events .event p + p button {
+  .App .results .result p + p button {
     margin-top: 0;
   }
 }

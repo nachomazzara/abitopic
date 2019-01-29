@@ -4,6 +4,10 @@ import logo from './logo.svg'
 import './App.css'
 const Web3 = require('web3')
 const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
+const TABS = {
+  FUNCTIONS: 'Functions',
+  EVENTS: 'Events'
+}
 
 class App extends Component {
   textarea: { [key: string]: any } = {}
@@ -16,16 +20,14 @@ class App extends Component {
       address: '',
       abi: null,
       events: null,
+      functions: null,
       error: null,
+      activeTab: TABS.EVENTS,
       apiNetwork: `https://api${
         network === 'ropsten' ? `-${network}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
       network
     }
-  }
-
-  componentWillMount() {
-    console.log(this.props)
   }
 
   getByABI = (e: any) => {
@@ -50,18 +52,41 @@ class App extends Component {
     try {
       const validABI = JSON.parse(abi)
       const events = []
+      const functions = []
+      const constants = []
       for (const method of validABI) {
-        if (method.name && method.type === 'event') {
-          const name = `${method.name}(${method.inputs
-            .map((input: any) => input.type)
-            .join(',')})`
-          const signature = web3.utils.sha3(name)
-          events.push({ name, signature })
+        if (!method.name) continue
+        const name = `${method.name}(${method.inputs
+          .map((input: any) => input.type)
+          .join(',')})`
+        switch (method.type) {
+          case 'event': {
+            const signature = web3.utils.sha3(name)
+            events.push({ name, signature })
+            break
+          }
+          case 'function': {
+            const selector = web3.eth.abi.encodeFunctionSignature(name)
+            if (method.constant) {
+              // constants to the end of the array
+              constants.push({ name, selector })
+            } else {
+              functions.push({ name, selector })
+            }
+            break
+          }
+          default:
+            break
         }
       }
-      this.setState({ error: null, abi, events })
+      this.setState({
+        error: null,
+        abi,
+        events,
+        functions: [...functions, ...constants]
+      })
     } catch (e) {
-      this.setState({ error: e.message })
+      this.setState({ error: e.message, abi })
     }
   }
 
@@ -92,8 +117,68 @@ class App extends Component {
     })
   }
 
+  onChangeTab = (activeTab: string) => {
+    this.setState({ activeTab })
+  }
+
+  isActive = (tab: string) => tab === (this.state as any).activeTab
+
+  renderEvents = (events: { name: string; signature: string }[]) =>
+    this.isActive(TABS.EVENTS) && (
+      <div className="results">
+        {events.map((event: any) => (
+          <React.Fragment key={event.signature}>
+            <div className="result">
+              <p>{`${event.name}`}</p>
+              <p>
+                {'[Topic0]'}
+                <textarea
+                  readOnly
+                  ref={textarea => (this.textarea[event.signature] = textarea)}
+                  value={event.signature}
+                />
+                <button onClick={() => this.copyTopic(event.signature)}>
+                  {'[copy]'}
+                </button>
+              </p>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    )
+
+  renderFunctions = (functions: { name: string; selector: string }[]) =>
+    this.isActive(TABS.FUNCTIONS) && (
+      <div className="results">
+        {functions.map((func: any) => (
+          <React.Fragment key={func.selector}>
+            <div className="result">
+              <p>{`${func.name}`}</p>
+              <p>
+                {'[Selector]'}
+                <textarea
+                  readOnly
+                  ref={textarea => (this.textarea[func.selector] = textarea)}
+                  value={func.selector}
+                />
+                <button onClick={() => this.copyTopic(func.selector)}>
+                  {'[copy]'}
+                </button>
+              </p>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    )
+
   render() {
-    const { events, abi, address, error, network } = this.state as any
+    const { events, functions, abi, address, error, network } = this
+      .state as any
+    const abiStr = abi
+      ? JSON.stringify(abi)
+          .replace(/\\"/g, '"')
+          .slice(1, -1)
+      : ''
     return (
       <div className="App">
         <div className="header">
@@ -104,7 +189,10 @@ class App extends Component {
         </div>
         <h1>{'ABItopic'}</h1>
         <h2>
-          {'Get the events topics0 from a contract by the address or ABI'}
+          {
+            'Get the events topics0 and function selectos from a contract by the'
+          }
+          <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
         </h2>
         <div className="wrapper">
           <div>
@@ -122,36 +210,32 @@ class App extends Component {
               placeholder={
                 '[{"type":"constructor","inputs":[{"name":"param1","type":"uint256","indexed":true}],"name":"Event"},{"type":"function","inputs":[{"name":"a","type":"uint256"}],"name":"foo","outputs":[]}]'
               }
+              spellCheck={false}
               onChange={this.getByABI}
-              value={abi ? JSON.stringify(abi) : ''}
+              value={abiStr}
             />
           </div>
         </div>
         <p className="error">{error}</p>
-        {events && (
-          <div className="events">
-            <h3>{'Events'}</h3>
-            {events.map((event: any) => (
-              <React.Fragment key={event.signature}>
-                <div className="event">
-                  <p>{`${event.name}`}</p>
-                  <p>
-                    {'[Topic0]'}
-                    <textarea
-                      readOnly
-                      ref={textarea =>
-                        (this.textarea[event.signature] = textarea)
-                      }
-                      value={event.signature}
-                    />
-                    <button onClick={() => this.copyTopic(event.signature)}>
-                      {'[copy]'}
-                    </button>
-                  </p>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
+        {events && functions && (
+          <React.Fragment>
+            <div className="tabs">
+              <a
+                className={this.isActive(TABS.EVENTS) ? 'active' : ''}
+                onClick={() => this.onChangeTab(TABS.EVENTS)}
+              >
+                {TABS.EVENTS}
+              </a>
+              <a
+                className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
+                onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
+              >
+                {TABS.FUNCTIONS}
+              </a>
+            </div>
+            {this.renderEvents(events)}
+            {this.renderFunctions(functions)}
+          </React.Fragment>
         )}
         <div className="footer">
           <a target="_blank" href="https://github.com/nachomazzara/abitopic">
