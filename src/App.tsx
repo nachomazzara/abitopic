@@ -56,22 +56,40 @@ class App extends Component {
       const constants = []
       for (const method of validABI) {
         if (!method.name) continue
+
         const name = `${method.name}(${method.inputs
           .map((input: any) => input.type)
           .join(',')})`
+
+        const original = (
+          <React.Fragment>
+            {`${method.name}${method.inputs.length > 0 ? '(' : ''}`}
+            {method.inputs.map((input: any, index: number) => (
+              <React.Fragment key={index}>
+                {' '}
+                <span>
+                  {input.type}{' '}
+                  <label className="param-name">{input.name}</label>
+                  {index !== method.inputs.length - 1 ? ', ' : ''}
+                </span>
+                {index === method.inputs.length - 1 && <span>{')'}</span>}
+              </React.Fragment>
+            ))}
+          </React.Fragment>
+        )
+
         switch (method.type) {
           case 'event': {
             const signature = web3.utils.sha3(name)
-            events.push({ name, signature })
+            events.push({ name, signature, original })
             break
           }
           case 'function': {
             const selector = web3.eth.abi.encodeFunctionSignature(name)
             if (method.constant) {
-              // constants to the end of the array
-              constants.push({ name, selector })
+              constants.push({ name, selector, original })
             } else {
-              functions.push({ name, selector })
+              functions.push({ name, selector, original })
             }
             break
           }
@@ -129,7 +147,8 @@ class App extends Component {
         {events.map((event: any) => (
           <React.Fragment key={event.signature}>
             <div className="result">
-              <p>{`${event.name}`}</p>
+              <p>{event.name}</p>
+              <p className="original">{event.original}</p>
               <p>
                 {'[Topic0]'}
                 <textarea
@@ -153,7 +172,8 @@ class App extends Component {
         {functions.map((func: any) => (
           <React.Fragment key={func.selector}>
             <div className="result">
-              <p>{`${func.name}`}</p>
+              <p>{func.name}</p>
+              <p className="original">{func.original}</p>
               <p>
                 {'[Selector]'}
                 <textarea
@@ -190,7 +210,7 @@ class App extends Component {
         <h1>{'ABItopic'}</h1>
         <h2>
           {
-            'Get the events topics0 and function selectos from a contract by the'
+            'Get the events topics0 and function selectors from a contract by the'
           }
           <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
         </h2>
@@ -217,26 +237,27 @@ class App extends Component {
           </div>
         </div>
         <p className="error">{error}</p>
-        {events && functions && (
-          <React.Fragment>
-            <div className="tabs">
-              <a
-                className={this.isActive(TABS.EVENTS) ? 'active' : ''}
-                onClick={() => this.onChangeTab(TABS.EVENTS)}
-              >
-                {TABS.EVENTS}
-              </a>
-              <a
-                className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
-                onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
-              >
-                {TABS.FUNCTIONS}
-              </a>
-            </div>
-            {this.renderEvents(events)}
-            {this.renderFunctions(functions)}
-          </React.Fragment>
-        )}
+        {events &&
+          functions && (
+            <React.Fragment>
+              <div className="tabs">
+                <a
+                  className={this.isActive(TABS.EVENTS) ? 'active' : ''}
+                  onClick={() => this.onChangeTab(TABS.EVENTS)}
+                >
+                  {TABS.EVENTS}
+                </a>
+                <a
+                  className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
+                  onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
+                >
+                  {TABS.FUNCTIONS}
+                </a>
+              </div>
+              {this.renderEvents(events)}
+              {this.renderFunctions(functions)}
+            </React.Fragment>
+          )}
         <div className="footer">
           <a target="_blank" href="https://github.com/nachomazzara/abitopic">
             {'{code} 👨‍💻'}
