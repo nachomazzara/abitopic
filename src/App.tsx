@@ -21,6 +21,8 @@ class App extends Component {
       abi: null,
       events: null,
       functions: null,
+      activeFunction: null,
+      dataResults: {},
       error: null,
       activeTab: TABS.EVENTS,
       apiNetwork: `https://api${
@@ -57,16 +59,15 @@ class App extends Component {
       for (const method of validABI) {
         if (!method.name) continue
 
-        const name = `${method.name}(${method.inputs
-          .map((input: any) => input.type)
-          .join(',')})`
+        const types = method.inputs.map((input: any) => input.type)
+        const name = `${method.name}(${types.join(',')})`
 
         const original = (
           <React.Fragment>
             {`${method.name}${method.inputs.length > 0 ? '(' : ''}`}
             {method.inputs.map((input: any, index: number) => (
               <React.Fragment key={index}>
-                {' '}
+                {index > 0 ? ' ' : ''}
                 <span>
                   {input.type}{' '}
                   <label className="param-name">{input.name}</label>
@@ -87,9 +88,9 @@ class App extends Component {
           case 'function': {
             const selector = web3.eth.abi.encodeFunctionSignature(name)
             if (method.constant) {
-              constants.push({ name, selector, original })
+              constants.push({ name, selector, original, types })
             } else {
-              functions.push({ name, selector, original })
+              functions.push({ name, selector, original, types })
             }
             break
           }
@@ -141,6 +142,32 @@ class App extends Component {
 
   isActive = (tab: string) => tab === (this.state as any).activeTab
 
+  showTxData = (event: any) => {
+    const { address, abi, activeFunction, dataResults } = this.state as any
+    event.preventDefault()
+    const elements = event.target.elements
+    const params = []
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i]
+      if (element.name.indexOf('[') !== -1) {
+        params.push(element.value.split(','))
+      } else if (element.type === 'text') {
+        params.push(element.value)
+      }
+    }
+
+    const contract = new web3.eth.Contract(JSON.parse(abi), address)
+
+    this.setState({
+      dataResults: {
+        ...dataResults,
+        [activeFunction]: contract.methods[activeFunction](
+          ...params
+        ).encodeABI()
+      }
+    })
+  }
+
   renderEvents = (events: { name: string; signature: string }[]) =>
     this.isActive(TABS.EVENTS) && (
       <div className="results">
@@ -166,7 +193,9 @@ class App extends Component {
       </div>
     )
 
-  renderFunctions = (functions: { name: string; selector: string }[]) =>
+  renderFunctions = (
+    functions: { name: string; selector: string; types: [] }[]
+  ) =>
     this.isActive(TABS.FUNCTIONS) && (
       <div className="results">
         {functions.map((func: any) => (
@@ -185,11 +214,35 @@ class App extends Component {
                   {'[copy]'}
                 </button>
               </p>
+              <button
+                onClick={() => this.setState({ activeFunction: func.name })}
+              >
+                {'Get Transaction raw data'}
+              </button>
+              {this.renderTransaction(func.name, func.types)}
             </div>
           </React.Fragment>
         ))}
       </div>
     )
+
+  renderTransaction = (name: string, types: []) => {
+    const { activeFunction, dataResults } = this.state as any
+    return activeFunction === name ? (
+      <React.Fragment>
+        <form onSubmit={this.showTxData}>
+          {types.map((type: string, index: number) => (
+            <React.Fragment>
+              <label>{type}</label>
+              <input key={index} type="text" name={type} />
+            </React.Fragment>
+          ))}
+          <button type="submit">{'Get data'}</button>
+        </form>
+        <p>{dataResults[name]}</p>
+      </React.Fragment>
+    ) : null
+  }
 
   render() {
     const { events, functions, abi, address, error, network } = this
