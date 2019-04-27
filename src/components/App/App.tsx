@@ -1,7 +1,13 @@
 import React, { Component } from 'react'
+
 import logo from './logo.svg'
+import Function from '../../components/Function' // @TODO: components as paths
+import { Func } from '../../components/Function/types' // @TODO: components as paths
+import Event from '../../components/Event' // @TODO: components as paths
+import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
 
 import './App.css'
+
 const Web3 = require('web3')
 const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 const TABS = {
@@ -9,7 +15,19 @@ const TABS = {
   EVENTS: 'Events'
 }
 
-class App extends Component {
+type AppState = {
+  contract: any
+  address: string
+  abi: any
+  events: any
+  functions: any
+  error: any
+  activeTab: string
+  apiNetwork: string
+  network: string
+}
+
+export default class App extends Component<any, AppState> {
   textarea: { [key: string]: any } = {}
 
   constructor(props: any) {
@@ -17,12 +35,11 @@ class App extends Component {
     const network =
       new URLSearchParams(window.location.search).get('network') || 'mainnet'
     this.state = {
+      contract: null,
       address: '',
       abi: null,
       events: null,
       functions: null,
-      activeFunction: null,
-      dataResults: {},
       error: null,
       activeTab: TABS.EVENTS,
       apiNetwork: `https://api${
@@ -34,7 +51,7 @@ class App extends Component {
 
   getByABI = (e: any) => {
     e.preventDefault()
-    this.decode(e.target.value)
+    this.decode('', e.target.value)
   }
 
   getByAddress = async (e: any) => {
@@ -46,15 +63,15 @@ class App extends Component {
     if (abi.result === 'Contract source code not verified') {
       this.setState({ error: abi.result })
     } else {
-      this.decode(abi.result)
+      this.decode(address, abi.result)
     }
   }
 
-  decode = (abi: any) => {
+  decode = (address: string, abi: any) => {
     try {
       const validABI = JSON.parse(abi)
-      const events = []
-      const functions = []
+      const events: EventType[] = []
+      const functions: Func[] = []
       const constants = []
       for (const method of validABI) {
         if (!method.name) continue
@@ -88,9 +105,18 @@ class App extends Component {
           case 'function': {
             const selector = web3.eth.abi.encodeFunctionSignature(name)
             if (method.constant) {
-              constants.push({ name, selector, original, types })
+              constants.push({
+                name,
+                selector,
+                original
+              })
             } else {
-              functions.push({ name, selector, original, types })
+              functions.push({
+                name,
+                selector,
+                original,
+                inputs: method.inputs
+              })
             }
             break
           }
@@ -98,10 +124,14 @@ class App extends Component {
             break
         }
       }
+
+      const contract = new web3.eth.Contract(JSON.parse(abi), address)
+
       this.setState({
-        error: null,
         abi,
         events,
+        contract,
+        error: null,
         functions: [...functions, ...constants]
       })
     } catch (e) {
@@ -142,107 +172,19 @@ class App extends Component {
 
   isActive = (tab: string) => tab === (this.state as any).activeTab
 
-  showTxData = (event: any) => {
-    const { address, abi, activeFunction, dataResults } = this.state as any
-    event.preventDefault()
-    const elements = event.target.elements
-    const params = []
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements[i]
-      if (element.name.indexOf('[') !== -1) {
-        params.push(element.value.split(','))
-      } else if (element.type === 'text') {
-        params.push(element.value)
-      }
-    }
+  renderEvents = (events: EventType[]) => (
+    <div className="results">
+      {events.map((event, index) => <Event key={index} event={event} />)}
+    </div>
+  )
 
-    const contract = new web3.eth.Contract(JSON.parse(abi), address)
-
-    this.setState({
-      dataResults: {
-        ...dataResults,
-        [activeFunction]: contract.methods[activeFunction](
-          ...params
-        ).encodeABI()
-      }
-    })
-  }
-
-  renderEvents = (events: { name: string; signature: string }[]) =>
-    this.isActive(TABS.EVENTS) && (
-      <div className="results">
-        {events.map((event: any) => (
-          <React.Fragment key={event.signature}>
-            <div className="result">
-              <p>{event.name}</p>
-              <p className="original">{event.original}</p>
-              <p>
-                {'[Topic0]'}
-                <textarea
-                  readOnly
-                  ref={textarea => (this.textarea[event.signature] = textarea)}
-                  value={event.signature}
-                />
-                <button onClick={() => this.copyTopic(event.signature)}>
-                  {'[copy]'}
-                </button>
-              </p>
-            </div>
-          </React.Fragment>
-        ))}
-      </div>
-    )
-
-  renderFunctions = (
-    functions: { name: string; selector: string; types: [] }[]
-  ) =>
-    this.isActive(TABS.FUNCTIONS) && (
-      <div className="results">
-        {functions.map((func: any) => (
-          <React.Fragment key={func.selector}>
-            <div className="result">
-              <p>{func.name}</p>
-              <p className="original">{func.original}</p>
-              <p>
-                {'[Selector]'}
-                <textarea
-                  readOnly
-                  ref={textarea => (this.textarea[func.selector] = textarea)}
-                  value={func.selector}
-                />
-                <button onClick={() => this.copyTopic(func.selector)}>
-                  {'[copy]'}
-                </button>
-              </p>
-              <button
-                onClick={() => this.setState({ activeFunction: func.name })}
-              >
-                {'Get Transaction raw data'}
-              </button>
-              {this.renderTransaction(func.name, func.types)}
-            </div>
-          </React.Fragment>
-        ))}
-      </div>
-    )
-
-  renderTransaction = (name: string, types: []) => {
-    const { activeFunction, dataResults } = this.state as any
-    return activeFunction === name ? (
-      <React.Fragment>
-        <form onSubmit={this.showTxData}>
-          {types.map((type: string, index: number) => (
-            <React.Fragment>
-              <label>{type}</label>
-              <input key={index} type="text" name={type} />
-            </React.Fragment>
-          ))}
-          <button type="submit">{'Get data'}</button>
-        </form>
-        <p>{dataResults[name]}</p>
-      </React.Fragment>
-    ) : null
-  }
+  renderFunctions = (functions: Func[]) => (
+    <div className="results">
+      {functions.map((func, index) => (
+        <Function key={index} func={func} contract={this.state.contract} />
+      ))}
+    </div>
+  )
 
   render() {
     const { events, functions, abi, address, error, network } = this
@@ -307,8 +249,8 @@ class App extends Component {
                   {TABS.FUNCTIONS}
                 </a>
               </div>
-              {this.renderEvents(events)}
-              {this.renderFunctions(functions)}
+              {this.isActive(TABS.EVENTS) && this.renderEvents(events)}
+              {this.isActive(TABS.FUNCTIONS) && this.renderFunctions(functions)}
             </React.Fragment>
           )}
         <div className="footer">
@@ -320,5 +262,3 @@ class App extends Component {
     )
   }
 }
-
-export default App

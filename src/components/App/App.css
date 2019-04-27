@@ -79,7 +79,7 @@
 }
 
 .App .tabs a:last-child {
-  border: none;  
+  border: none;
 }
 
 .App .results {
@@ -133,9 +133,10 @@
   height: auto;
   width: 100%;
   font-size: 12px;
+  margin-top: -1px;
 }
 
-.App .results .result p + p + p button {
+.App .results .result p + p + p button, .copy-button {
   border: none;
   font-style: italic;
   cursor: pointer;
@@ -178,7 +179,7 @@
     height: 17px;
   }
 
-  .App .results .result p + p + p button {
+  .App .results .result p + p + p button, .copy-button {
     float: right;
     margin-top: -1px;
     width: auto;
@@ -208,7 +209,7 @@
     margin-left: 7px;
   }
 
-  .App .results .result p + p button {
+  .App .results .result p + p button, .copy-button {
     margin-top: 0;
   }
 }
@@ -234,17 +235,17 @@
   .App textarea.abi {
     max-width: 450px;
   }
-  
+
   .App input {
     max-width: 450px;
   }
 }
 
-@media(min-width: 1200px) {  
+@media(min-width: 1200px) {
   .App textarea.abi {
     max-width: 500px;
   }
-  
+
   .App input {
     max-width: 500px;
   }

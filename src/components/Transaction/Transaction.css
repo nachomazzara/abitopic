@@ -1,0 +1,50 @@
+form {
+  margin-top: 10px;
+}
+
+form .input-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+form .input-row label {
+  font-size: 14px;
+  margin-bottom: 7px;
+}
+
+form .input-row input {
+  border-radius: 3px;
+  font-size: 14px;
+  padding: 7px;
+  color: #383838;
+}
+
+form button {
+  padding: 7px;
+  background: none;
+  font-size: 12px;
+  border-radius: 3px;
+  margin-bottom: 15px;
+}
+
+.result textarea.data {
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.3em;
+  width: 100%;
+  max-width: 32em;
+  word-break: break-all;
+  color: #828282;
+  height: 100%;
+  margin: 20px 0;
+  margin-left: 0;
+}
+
+form + .data.error {
+  color: #ff4b4b;
+  max-width: 100%;
+  font-size: 14px;
+}
