@@ -16,6 +16,7 @@ export default class Transaction extends PureComponent<
 
   toArrayInput = (input: string) =>
     input
+      .replace(/ /g, '')
       .replace('[', '')
       .replace(']', '')
       .split(',')
