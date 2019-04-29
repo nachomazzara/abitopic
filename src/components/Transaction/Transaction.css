@@ -48,3 +48,8 @@ form + .data.error {
   max-width: 100%;
   font-size: 14px;
 }
+
+button{
+  outline: none;
+  cursor: pointer;
+}
