@@ -24,6 +24,29 @@
   color: #14517e;
 }
 
+.App .address-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.App .address-wrapper > div {
+  width: 100%;
+}
+
+.App .address-wrapper div.checkbox {
+  text-align: left;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.App .address-wrapper div input[type="checkbox"] {
+  width: auto;
+  margin-right: 6px;
+}
+
 .App strong {
   font-weight: 400;
 }

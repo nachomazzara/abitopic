@@ -21,12 +21,43 @@ export default class Transaction extends PureComponent<
       .replace(']', '')
       .split(',')
 
-  showTxData = (event: any) => {
+  showTxData = (event: React.FormEvent<any>) => {
     event.preventDefault()
-    const { data } = this.state
-    const { contract, funcName } = this.props
+    this.setState({
+      data: this.getData(event),
+      error: null
+    })
+  }
 
-    const elements = event.target.elements
+  sendTxData = async (event: React.FormEvent<any>) => {
+    event.preventDefault()
+
+    const { contract, funcName } = this.props
+    const data = this.getData(event)
+    if ((window as any).ethereum) {
+      try {
+        await (window as any).ethereum.enable()
+        const web3 = (window as any).web3
+        console.log(contract)
+        web3.eth.sendTransaction(
+          {
+            from: web3.eth.defaultAccount,
+            to: contract.options.address,
+            data
+          },
+          (err: string, res: string) => {
+            console.log(err, res)
+          }
+        )
+      } catch (e) {
+        console.log(e.message)
+      }
+    }
+  }
+
+  getData = (event: React.FormEvent<any>) => {
+    const { contract, funcName } = this.props
+    const elements = event.currentTarget.form
     const params = []
     for (let i = 0; i < elements.length; i++) {
       const element = elements[i]
@@ -37,11 +68,7 @@ export default class Transaction extends PureComponent<
       }
     }
     try {
-      const data = contract.methods[funcName](...params).encodeABI()
-      this.setState({
-        data,
-        error: null
-      })
+      return contract.methods[funcName](...params).encodeABI()
     } catch (e) {
       this.setState({
         data: '',
@@ -56,7 +83,7 @@ export default class Transaction extends PureComponent<
 
     return (
       <React.Fragment>
-        <form onSubmit={this.showTxData}>
+        <form>
           {inputs.map((input, index: number) => (
             <div key={index} className="input-row">
               <label>{input.name}</label>
@@ -68,7 +95,12 @@ export default class Transaction extends PureComponent<
               />
             </div>
           ))}
-          <button type="submit">{'Get raw data'}</button>
+          <button type="submit" onClick={this.showTxData}>
+            {'Get raw data'}
+          </button>
+          <button type="submit" onClick={this.sendTxData}>
+            {'Send Transaction'}
+          </button>
         </form>
         {error && <p className="data error">{error}</p>}
         {data && <Text text={data} className={'data'} />}

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import logo from './logo.svg'
+import { findABIForProxy } from '../../lib/utils'
 import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
 import Event from '../../components/Event' // @TODO: components as paths
@@ -19,12 +20,14 @@ type AppState = {
   contract: any
   address: string
   abi: any
+  originalABI: any
   events: any
   functions: any
   error: any
   activeTab: string
   apiNetwork: string
   network: string
+  isProxy: boolean
 }
 
 export default class App extends Component<any, AppState> {
@@ -38,10 +41,12 @@ export default class App extends Component<any, AppState> {
       contract: null,
       address: '',
       abi: null,
+      originalABI: null,
       events: null,
       functions: null,
       error: null,
       activeTab: TABS.EVENTS,
+      isProxy: false,
       apiNetwork: `https://api${
         network === 'ropsten' ? `-${network}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
@@ -54,17 +59,44 @@ export default class App extends Component<any, AppState> {
     this.decode('', e.target.value)
   }
 
-  getByAddress = async (e: any) => {
+  getByAddress = (e: any) => {
     e.preventDefault()
-    const address = e.target.value
-    this.setState({ address })
-    const res = await fetch(`${(this.state as any).apiNetwork}${address}`)
-    const abi = await res.json()
-    if (abi.result === 'Contract source code not verified') {
-      this.setState({ error: abi.result })
-    } else {
-      this.decode(address, abi.result)
+    this.setState({
+      address: e.target.value
+    })
+    this.getABI(e.target.value)
+  }
+
+  getABI = async (address: string) => {
+    if (address) {
+      const res = await fetch(`${this.state.apiNetwork}${address}`)
+      const abi = await res.json()
+      if (abi.result === 'Contract source code not verified') {
+        this.setState({ error: abi.result })
+      } else {
+        this.decode(address, abi.result)
+      }
     }
+  }
+
+  getABIforProxy = async () => {
+    const { network, address, isProxy } = this.state
+    if (!isProxy) {
+      const implementationAddress = await findABIForProxy(
+        network,
+        this.state.address
+      )
+      if (implementationAddress) {
+        this.getABI(implementationAddress)
+      } else {
+        this.setState({
+          error: 'No implementation found. Please contact me @nachomazzara'
+        })
+      }
+    } else {
+      this.getABI(address)
+    }
+    this.setState({ isProxy: !isProxy })
   }
 
   decode = (address: string, abi: any) => {
@@ -187,8 +219,15 @@ export default class App extends Component<any, AppState> {
   )
 
   render() {
-    const { events, functions, abi, address, error, network } = this
-      .state as any
+    const {
+      events,
+      functions,
+      abi,
+      address,
+      error,
+      network,
+      isProxy
+    } = this.state
     const abiStr = abi
       ? JSON.stringify(abi)
           .replace(/\\"/g, '"')
@@ -210,13 +249,24 @@ export default class App extends Component<any, AppState> {
           <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
         </h2>
         <div className="wrapper">
-          <div>
+          <div className="address-wrapper">
             <h3>{'Contract Address'}</h3>
-            <input
-              placeholder="0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2"
-              onChange={this.getByAddress}
-              value={address}
-            />
+            <div>
+              <input
+                placeholder="0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2"
+                onChange={this.getByAddress}
+                value={address}
+              />
+            </div>
+            <div className="checkbox">
+              <input
+                id="checkbox"
+                type="checkbox"
+                onChange={this.getABIforProxy}
+                defaultChecked={isProxy}
+              />
+              <label htmlFor="checkbox">{'Is proxy'}</label>
+            </div>
           </div>
           <div>
             <h3>{'ABI / JSON Interface'}</h3>
