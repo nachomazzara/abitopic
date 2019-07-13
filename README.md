@@ -7,3 +7,5 @@ You only need to copy and paste the contract address or the ABI (in case the cod
 Works on Ropsten and Mainnet (default)
 
 ### [Try it](https://abitopic.now.sh)
+
+Note: This is my first project using react ts so a lot of `any` and bad things was made.

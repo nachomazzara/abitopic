@@ -30,6 +30,10 @@
   align-items: center;
 }
 
+.App .address-wrapper .input-wrapper {
+  width: 100%;
+}
+
 .App .address-wrapper > div {
   width: 100%;
 }
@@ -37,6 +41,7 @@
 .App .address-wrapper div.checkbox {
   text-align: left;
   max-width: 320px;
+  width: 100%;
   display: flex;
   align-items: center;
   margin-top: 15px;
@@ -45,6 +50,7 @@
 .App .address-wrapper div input[type='checkbox'] {
   width: auto;
   margin-right: 6px;
+  outline: none;
 }
 
 .App strong {
@@ -270,6 +276,10 @@ textarea.abi:focus {
   .App input {
     max-width: 450px;
   }
+
+  .App .address-wrapper div.checkbox {
+    max-width: 480px;
+  }
 }
 
 @media (min-width: 1200px) {
@@ -279,5 +289,9 @@ textarea.abi:focus {
 
   .App input {
     max-width: 500px;
+  }
+
+  .App .address-wrapper div.checkbox {
+    max-width: 530px;
   }
 }

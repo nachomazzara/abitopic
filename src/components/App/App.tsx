@@ -2,10 +2,12 @@ import React, { Component } from 'react'
 
 import logo from './logo.svg'
 import { findABIForProxy } from '../../lib/utils'
+import Loader from '../../components/Loader' // @TODO: components as paths
 import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
 import Event from '../../components/Event' // @TODO: components as paths
 import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
+import { State } from './types'
 
 import './App.css'
 
@@ -16,21 +18,7 @@ const TABS = {
   EVENTS: 'Events'
 }
 
-type AppState = {
-  contract: any
-  address: string
-  abi: any
-  originalABI: any
-  events: any
-  functions: any
-  error: any
-  activeTab: string
-  apiNetwork: string
-  network: string
-  isProxy: boolean
-}
-
-export default class App extends Component<any, AppState> {
+export default class App extends Component<any, State> {
   textarea: { [key: string]: any } = {}
 
   constructor(props: any) {
@@ -47,6 +35,7 @@ export default class App extends Component<any, AppState> {
       error: null,
       activeTab: TABS.EVENTS,
       isProxy: false,
+      isLoading: false,
       apiNetwork: `https://api${
         network === 'ropsten' ? `-${network}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
@@ -64,7 +53,7 @@ export default class App extends Component<any, AppState> {
     this.setState({
       address: e.target.value
     })
-    this.getABI(e.target.value)
+    this.getAddress(e.target.value, this.state.isProxy)
   }
 
   getABI = async (address: string) => {
@@ -80,24 +69,38 @@ export default class App extends Component<any, AppState> {
   }
 
   getABIforProxy = async () => {
-    const { network, address, isProxy } = this.state
-    if (!isProxy) {
+    const { address, isProxy } = this.state
+    if (address.length > 0) {
+      this.getAddress(address, !isProxy)
+    }
+    this.setState({ isProxy: !isProxy })
+  }
+
+  getAddress = async (address: string, isProxy: boolean) => {
+    this.setState({
+      isLoading: true
+    })
+
+    const { network } = this.state
+    if (isProxy) {
       const implementationAddress = await findABIForProxy(
         web3,
         network,
-        this.state.address
+        address
       )
       if (implementationAddress) {
-        this.getABI(implementationAddress)
+        await this.getABI(implementationAddress)
       } else {
         this.setState({
           error: 'No implementation found. Please contact me @nachomazzara'
         })
       }
     } else {
-      this.getABI(address)
+      await this.getABI(address)
     }
-    this.setState({ isProxy: !isProxy })
+    this.setState({
+      isLoading: false
+    })
   }
 
   decode = (address: string, abi: any) => {
@@ -226,7 +229,8 @@ export default class App extends Component<any, AppState> {
       address,
       error,
       network,
-      isProxy
+      isProxy,
+      isLoading
     } = this.state
     const abiStr = abi
       ? JSON.stringify(abi)
@@ -234,80 +238,83 @@ export default class App extends Component<any, AppState> {
           .slice(1, -1)
       : ''
     return (
-      <div className="App">
-        <div className="header">
-          <p>{`${network}`}</p>
-          <a onClick={this.changeNetwork}>
-            {`Switch to ${network === 'ropsten' ? 'mainnet' : 'ropsten'}`}
-          </a>
-        </div>
-        <h1>{'ABItopic'}</h1>
-        <h2>
-          {
-            'Get the events topics0 and function selectors from a contract by the'
-          }
-          <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
-        </h2>
-        <div className="wrapper">
-          <div className="address-wrapper">
-            <h3>{'Contract Address'}</h3>
+      <>
+        {isLoading && <Loader />}
+        <div className="App">
+          <div className="header">
+            <p>{`${network}`}</p>
+            <a onClick={this.changeNetwork}>
+              {`Switch to ${network === 'ropsten' ? 'mainnet' : 'ropsten'}`}
+            </a>
+          </div>
+          <h1>{'ABItopic'}</h1>
+          <h2>
+            {
+              'Get the events topics0 and function selectors from a contract by the'
+            }
+            <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
+          </h2>
+          <div className="wrapper">
+            <div className="address-wrapper">
+              <h3>{'Contract Address'}</h3>
+              <div className="input-wrapper">
+                <input
+                  placeholder="0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2"
+                  onChange={this.getByAddress}
+                  value={address}
+                />
+              </div>
+              <div className="checkbox">
+                <input
+                  id="checkbox"
+                  type="checkbox"
+                  onChange={this.getABIforProxy}
+                  defaultChecked={isProxy}
+                />
+                <label htmlFor="checkbox">{'Is proxy'}</label>
+              </div>
+            </div>
             <div>
-              <input
-                placeholder="0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2"
-                onChange={this.getByAddress}
-                value={address}
+              <h3>{'ABI / JSON Interface'}</h3>
+              <textarea
+                className="abi"
+                placeholder={
+                  '[{"type":"constructor","inputs":[{"name":"param1","type":"uint256","indexed":true}],"name":"Event"},{"type":"function","inputs":[{"name":"a","type":"uint256"}],"name":"foo","outputs":[]}]'
+                }
+                spellCheck={false}
+                onChange={this.getByABI}
+                value={abiStr}
               />
             </div>
-            <div className="checkbox">
-              <input
-                id="checkbox"
-                type="checkbox"
-                onChange={this.getABIforProxy}
-                defaultChecked={isProxy}
-              />
-              <label htmlFor="checkbox">{'Is proxy'}</label>
-            </div>
           </div>
-          <div>
-            <h3>{'ABI / JSON Interface'}</h3>
-            <textarea
-              className="abi"
-              placeholder={
-                '[{"type":"constructor","inputs":[{"name":"param1","type":"uint256","indexed":true}],"name":"Event"},{"type":"function","inputs":[{"name":"a","type":"uint256"}],"name":"foo","outputs":[]}]'
-              }
-              spellCheck={false}
-              onChange={this.getByABI}
-              value={abiStr}
-            />
+          <p className="error">{error}</p>
+          {events && functions && (
+            <React.Fragment>
+              <div className="tabs">
+                <a
+                  className={this.isActive(TABS.EVENTS) ? 'active' : ''}
+                  onClick={() => this.onChangeTab(TABS.EVENTS)}
+                >
+                  {TABS.EVENTS}
+                </a>
+                <a
+                  className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
+                  onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
+                >
+                  {TABS.FUNCTIONS}
+                </a>
+              </div>
+              {this.isActive(TABS.EVENTS) && this.renderEvents(events)}
+              {this.isActive(TABS.FUNCTIONS) && this.renderFunctions(functions)}
+            </React.Fragment>
+          )}
+          <div className="footer">
+            <a target="_blank" href="https://github.com/nachomazzara/abitopic">
+              {'{code} 👨‍💻'}
+            </a>
           </div>
         </div>
-        <p className="error">{error}</p>
-        {events && functions && (
-          <React.Fragment>
-            <div className="tabs">
-              <a
-                className={this.isActive(TABS.EVENTS) ? 'active' : ''}
-                onClick={() => this.onChangeTab(TABS.EVENTS)}
-              >
-                {TABS.EVENTS}
-              </a>
-              <a
-                className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
-                onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
-              >
-                {TABS.FUNCTIONS}
-              </a>
-            </div>
-            {this.isActive(TABS.EVENTS) && this.renderEvents(events)}
-            {this.isActive(TABS.FUNCTIONS) && this.renderFunctions(functions)}
-          </React.Fragment>
-        )}
-        <div className="footer">
-          <a target="_blank" href="https://github.com/nachomazzara/abitopic">
-            {'{code} 👨‍💻'}
-          </a>
-        </div>
-      </div>
+      </>
     )
   }
 }

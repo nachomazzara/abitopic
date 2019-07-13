@@ -5,16 +5,22 @@ import Text from '../../components/Text' // @TODO: components as paths'
 import './Transaction.css'
 
 const Web3 = require('web3')
-const network =
-  new URLSearchParams(window.location.search).get('network') || 'mainnet'
 
 export default class Transaction extends PureComponent<
   TransactionProps,
   TransactionState
 > {
+  network =
+    new URLSearchParams(window.location.search).get('network') || 'mainnet'
+
   constructor(props: TransactionProps) {
     super(props)
     this.state = { data: '', link: '', error: null }
+  }
+
+  componentWillReceiveProps() {
+    this.network =
+      new URLSearchParams(window.location.search).get('network') || 'mainnet'
   }
 
   toArrayInput = (input: string) =>
@@ -43,8 +49,13 @@ export default class Transaction extends PureComponent<
     if (ethereum !== undefined && typeof ethereum.enable === 'function') {
       try {
         const net = web3.version.network
-        if (network === 'ropsten' && net !== '3') {
-          throw new Error('You are in mainnet! switch your wallet to Ropsten')
+        if (
+          (this.network === 'ropsten' && net !== '3') ||
+          (this.network === 'mainnet' && net !== '1')
+        ) {
+          throw new Error(
+            `You are not in ${this.network}! switch your wallet to it`
+          )
         }
         await ethereum.enable()
 
@@ -108,7 +119,7 @@ export default class Transaction extends PureComponent<
 
   getLink = (txHash: string) => {
     return `https://${
-      network === 'ropsten' ? `${network}.` : ''
+      this.network === 'ropsten' ? `${this.network}.` : ''
     }etherscan.io/tx/${txHash}`
   }
 
