@@ -39,7 +39,7 @@ export default class Transaction extends PureComponent<
     const { ethereum, web3 } = window as EthereumWindow
     const fn = isConstant ? web3.eth.call : web3.eth.sendTransaction
     const data = this.getData(event)
-    console.log(data)
+
     if (ethereum !== undefined && typeof ethereum.enable === 'function') {
       try {
         const net = web3.version.network
@@ -95,8 +95,6 @@ export default class Transaction extends PureComponent<
       outputs.map(input => input.type),
       data
     )
-
-    console.log(outputs)
 
     return Object.keys(decodedData)
       .map(
