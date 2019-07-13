@@ -60,7 +60,7 @@ form + .data.error {
   font-size: 14px;
 }
 
-button{
+button {
   outline: none;
   cursor: pointer;
 }

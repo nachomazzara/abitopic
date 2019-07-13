@@ -42,7 +42,7 @@
   margin-top: 15px;
 }
 
-.App .address-wrapper div input[type="checkbox"] {
+.App .address-wrapper div input[type='checkbox'] {
   width: auto;
   margin-right: 6px;
 }
@@ -51,18 +51,21 @@
   font-weight: 400;
 }
 
-.App input, textarea {
+.App input,
+textarea {
   border: 1px solid #d8d8d8;
   padding: 10px;
   outline: none;
   font-weight: 100;
 }
 
-.App input::placeholder, textarea::placeholder {
+.App input::placeholder,
+textarea::placeholder {
   opacity: 0.5;
 }
 
-.App input:focus, textarea.abi:focus {
+.App input:focus,
+textarea.abi:focus {
   border: 1px solid #76a5f5;
   box-shadow: inset 0 0 0 1px #76a5f5;
 }
@@ -96,7 +99,8 @@
   font-size: 22px;
 }
 
-.App .tabs a.active, .App .tabs a:hover {
+.App .tabs a.active,
+.App .tabs a:hover {
   text-decoration: none;
   color: initial;
 }
@@ -107,7 +111,7 @@
 
 .App .results {
   text-align: left;
-  margin-bottom: 60px
+  margin-bottom: 60px;
 }
 
 .App .results .result {
@@ -121,14 +125,14 @@
   word-break: break-all;
 }
 
-.App .results .result p + p + p{
-  color:#828282;
+.App .results .result p + p + p {
+  color: #828282;
   margin-top: 0;
   font-size: 12px;
 }
 
 .result .param-name {
-  color: #e18036
+  color: #e18036;
 }
 
 .result .original {
@@ -141,11 +145,11 @@
 }
 
 .result .original span:last-child {
-  margin-left: 0
+  margin-left: 0;
 }
 
 .result textarea {
-  color:#828282;
+  color: #828282;
   border: none;
   outline: none;
   background: transparent;
@@ -159,7 +163,8 @@
   margin-top: -1px;
 }
 
-.App .results .result p + p + p button, .copy-button {
+.App .results .result p + p + p button,
+.copy-button {
   border: none;
   font-style: italic;
   cursor: pointer;
@@ -182,7 +187,7 @@
   height: 60px;
 }
 
-.App  .footer a {
+.App .footer a {
   color: white;
   font-size: 18px;
   text-decoration: none;
@@ -191,7 +196,7 @@
   margin-right: 20px;
 }
 
-@media(min-width: 620px) {
+@media (min-width: 620px) {
   .App .results .result p + p + p {
     font-size: 12px;
   }
@@ -202,7 +207,8 @@
     height: 17px;
   }
 
-  .App .results .result p + p + p button, .copy-button {
+  .App .results .result p + p + p button,
+  .copy-button {
     float: right;
     margin-top: -1px;
     width: auto;
@@ -211,7 +217,7 @@
   }
 }
 
-@media(min-width: 768px) {
+@media (min-width: 768px) {
   .App .results .result p:first-child {
     font-size: 16px;
   }
@@ -232,27 +238,29 @@
     margin-left: 7px;
   }
 
-  .App .results .result p + p button, .copy-button {
+  .App .results .result p + p button,
+  .copy-button {
     margin-top: 0;
   }
 }
 
-@media(min-width: 992px) {
-  .App .wrapper{
+@media (min-width: 992px) {
+  .App .wrapper {
     display: flex;
     text-align: center;
   }
 
   .App .wrapper div {
-    width: 50%
+    width: 50%;
   }
 
   .result .original {
     font-size: 85%;
   }
 
-  .App input, textarea {
-    font-size: 16px
+  .App input,
+  textarea {
+    font-size: 16px;
   }
 
   .App textarea.abi {
@@ -264,7 +272,7 @@
   }
 }
 
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
   .App textarea.abi {
     max-width: 500px;
   }

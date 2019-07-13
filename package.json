@@ -31,6 +31,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@types/web3": "^1.0.18"
+    "@types/web3": "^1.0.18",
+    "prettier": "^1.18.2"
   }
 }

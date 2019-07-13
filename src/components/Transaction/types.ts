@@ -7,7 +7,11 @@ export type TransactionProps = {
   isConstant: boolean
   contract: any
 }
-export type TransactionState = { data: string; link: string; error: string | null }
+export type TransactionState = {
+  data: string
+  link: string
+  error: string | null
+}
 
 export interface EthereumWindow {
   ethereum?: {
@@ -15,6 +19,6 @@ export interface EthereumWindow {
     isApproved: () => Promise<boolean>
 
     enable?: () => Promise<string[]>
-  },
+  }
   web3?: any
 }
