@@ -162,9 +162,13 @@ export default class App extends Component<any, State> {
 
       this.setState({
         abi,
-        events,
         contract,
-        functions,
+        events: events.sort((a: EventType, b: EventType) =>
+          a.name.localeCompare(b.name)
+        ),
+        functions: functions.sort((a: Func, b: Func) =>
+          a.name.localeCompare(b.name)
+        ),
         error: null
       })
     } catch (e) {
@@ -207,9 +211,7 @@ export default class App extends Component<any, State> {
 
   renderEvents = (events: EventType[]) => (
     <div className="results">
-      {events.map((event, index) => (
-        <Event key={index} event={event} />
-      ))}
+      {events.map((event, index) => <Event key={index} event={event} />)}
     </div>
   )
 
@@ -288,26 +290,28 @@ export default class App extends Component<any, State> {
             </div>
           </div>
           <p className="error">{error}</p>
-          {events && functions && (
-            <React.Fragment>
-              <div className="tabs">
-                <a
-                  className={this.isActive(TABS.EVENTS) ? 'active' : ''}
-                  onClick={() => this.onChangeTab(TABS.EVENTS)}
-                >
-                  {TABS.EVENTS}
-                </a>
-                <a
-                  className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
-                  onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
-                >
-                  {TABS.FUNCTIONS}
-                </a>
-              </div>
-              {this.isActive(TABS.EVENTS) && this.renderEvents(events)}
-              {this.isActive(TABS.FUNCTIONS) && this.renderFunctions(functions)}
-            </React.Fragment>
-          )}
+          {events &&
+            functions && (
+              <React.Fragment>
+                <div className="tabs">
+                  <a
+                    className={this.isActive(TABS.EVENTS) ? 'active' : ''}
+                    onClick={() => this.onChangeTab(TABS.EVENTS)}
+                  >
+                    {TABS.EVENTS}
+                  </a>
+                  <a
+                    className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
+                    onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
+                  >
+                    {TABS.FUNCTIONS}
+                  </a>
+                </div>
+                {this.isActive(TABS.EVENTS) && this.renderEvents(events)}
+                {this.isActive(TABS.FUNCTIONS) &&
+                  this.renderFunctions(functions)}
+              </React.Fragment>
+            )}
           <div className="footer">
             <a target="_blank" href="https://github.com/nachomazzara/abitopic">
               {'{code} 👨‍💻'}
