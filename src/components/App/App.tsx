@@ -252,7 +252,7 @@ export default class App extends Component<any, State> {
           <h1>{'ABItopic'}</h1>
           <h2>
             {
-              'Get the events topics0 and function selectors from a contract by the'
+              'Get the events topics0, function selectors and communicate with contracts by the'
             }
             <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
           </h2>
