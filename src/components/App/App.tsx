@@ -83,6 +83,7 @@ export default class App extends Component<any, AppState> {
     const { network, address, isProxy } = this.state
     if (!isProxy) {
       const implementationAddress = await findABIForProxy(
+        web3,
         network,
         this.state.address
       )
@@ -136,20 +137,14 @@ export default class App extends Component<any, AppState> {
           }
           case 'function': {
             const selector = web3.eth.abi.encodeFunctionSignature(name)
-            if (method.constant) {
-              constants.push({
-                name,
-                selector,
-                original
-              })
-            } else {
-              functions.push({
-                name,
-                selector,
-                original,
-                inputs: method.inputs
-              })
-            }
+            functions.push({
+              name,
+              selector,
+              original,
+              isConstant: method.constant,
+              inputs: method.inputs,
+              outputs: method.outputs
+            })
             break
           }
           default:
@@ -157,14 +152,17 @@ export default class App extends Component<any, AppState> {
         }
       }
 
-      const contract = new web3.eth.Contract(JSON.parse(abi), address)
+      const contract = new web3.eth.Contract(
+        JSON.parse(abi),
+        this.state.address
+      )
 
       this.setState({
         abi,
         events,
         contract,
-        error: null,
-        functions: [...functions, ...constants]
+        functions,
+        error: null
       })
     } catch (e) {
       this.setState({ error: e.message, abi })

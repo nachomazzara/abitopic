@@ -21,6 +21,8 @@ export default class Function extends PureComponent<FunctionProps> {
             <Transaction
               funcName={func.name}
               inputs={func.inputs}
+              outputs={func.outputs}
+              isConstant={func.isConstant}
               contract={contract}
             />
           )}

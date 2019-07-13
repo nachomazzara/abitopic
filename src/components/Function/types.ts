@@ -1,10 +1,12 @@
-import { Input } from '../../components/Transaction/types'
+import { Type } from '../../components/Transaction/types'
 
 export type Func = {
   name: string
   original: any
   selector: string
-  inputs: Input[]
+  isConstant: boolean
+  outputs: Type[]
+  inputs: Type[]
 }
 
 export type FunctionProps = {

@@ -30,6 +30,10 @@ form button {
   margin-bottom: 15px;
 }
 
+form button + button {
+  margin-left: 15px;
+}
+
 .result textarea.data {
   font-family: monospace;
   font-size: 14px;
@@ -46,6 +50,13 @@ form button {
 form + .data.error {
   color: #ff4b4b;
   max-width: 100%;
+  font-size: 14px;
+}
+
+.tx-link {
+  margin: 20px 0;
+  display: block;
+  color: #3398db;
   font-size: 14px;
 }
 
