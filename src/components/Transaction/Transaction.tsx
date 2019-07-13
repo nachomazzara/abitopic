@@ -10,8 +10,8 @@ export default class Transaction extends PureComponent<
   TransactionProps,
   TransactionState
 > {
-  network =
-    new URLSearchParams(window.location.search).get('network') || 'mainnet'
+  network = new URLSearchParams(window.location.search).get('network') ||
+  'mainnet'
 
   constructor(props: TransactionProps) {
     super(props)
@@ -54,7 +54,11 @@ export default class Transaction extends PureComponent<
           (this.network === 'mainnet' && net !== '1')
         ) {
           throw new Error(
-            `You are not in ${this.network}! switch your wallet to it`
+            `Your wallet is not on ${
+              this.network
+            }. Please, switch your wallet ${
+              this.network
+            } if you want to interact with the contract.`
           )
         }
         await ethereum.enable()
