@@ -56,7 +56,7 @@ export default class Transaction extends PureComponent<
           throw new Error(
             `Your wallet is not on ${
               this.network
-            }. Please, switch your wallet ${
+            }. Please, switch your wallet to ${
               this.network
             } if you want to interact with the contract.`
           )
@@ -151,7 +151,7 @@ export default class Transaction extends PureComponent<
 
   render() {
     const { data, link, error } = this.state
-    const { inputs } = this.props
+    const { inputs, outputs } = this.props
 
     return (
       <React.Fragment>
@@ -171,7 +171,7 @@ export default class Transaction extends PureComponent<
             {'Get raw data'}
           </button>
           <button type="submit" onClick={this.sendTxData}>
-            {'Send Transaction'}
+            {outputs.length > 0 ? 'Query' : 'Send Transaction'}
           </button>
         </form>
         {error && <p className="data error">{error}</p>}
