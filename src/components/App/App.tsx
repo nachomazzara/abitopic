@@ -36,6 +36,7 @@ export default class App extends Component<any, State> {
       activeTab: TABS.EVENTS,
       isProxy: false,
       isLoading: false,
+      search: '',
       apiNetwork: `https://api${
         network === 'ropsten' ? `-${network}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
@@ -211,17 +212,33 @@ export default class App extends Component<any, State> {
 
   renderEvents = (events: EventType[]) => (
     <div className="results">
-      {events.map((event, index) => <Event key={index} event={event} />)}
+      {events.length > 0
+        ? events.map((event, index) => <Event key={index} event={event} />)
+        : this.renderEmptyResult()}
     </div>
   )
 
   renderFunctions = (functions: Func[]) => (
     <div className="results">
-      {functions.map((func, index) => (
-        <Function key={index} func={func} contract={this.state.contract} />
-      ))}
+      {functions.length > 0
+        ? functions.map((func, index) => (
+            <Function key={index} func={func} contract={this.state.contract} />
+          ))
+        : this.renderEmptyResult()}
     </div>
   )
+
+  renderEmptyResult = () => <p className="no-results">No results...</p>
+
+  filterBySearch = (data: any) =>
+    data!.filter(
+      (d: any) =>
+        d.name.toLowerCase().indexOf(this.state.search.toLowerCase()) !== -1
+    )
+
+  handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ search: e.currentTarget.value })
+  }
 
   render() {
     const {
@@ -232,7 +249,8 @@ export default class App extends Component<any, State> {
       error,
       network,
       isProxy,
-      isLoading
+      isLoading,
+      search
     } = this.state
     const abiStr = abi
       ? JSON.stringify(abi)
@@ -307,9 +325,18 @@ export default class App extends Component<any, State> {
                     {TABS.FUNCTIONS}
                   </a>
                 </div>
-                {this.isActive(TABS.EVENTS) && this.renderEvents(events)}
+                <div className="search">
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={this.handleSearchChange}
+                    placeholder="Search..."
+                  />
+                </div>
+                {this.isActive(TABS.EVENTS) &&
+                  this.renderEvents(this.filterBySearch(events))}
                 {this.isActive(TABS.FUNCTIONS) &&
-                  this.renderFunctions(functions)}
+                  this.renderFunctions(this.filterBySearch(functions))}
               </React.Fragment>
             )}
           <div className="footer">

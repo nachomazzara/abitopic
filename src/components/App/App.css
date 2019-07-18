@@ -40,7 +40,7 @@
 
 .App .address-wrapper div.checkbox {
   text-align: left;
-  max-width: 320px;
+  max-width: 304px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -72,13 +72,14 @@ textarea::placeholder {
 
 .App input:focus,
 textarea.abi:focus {
-  border: 1px solid #76a5f5;
-  box-shadow: inset 0 0 0 1px #76a5f5;
+  outline: none;
+  border-color: #909090;
 }
 
 .App input {
   max-width: 300px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .App textarea.abi {
@@ -115,9 +116,19 @@ textarea.abi:focus {
   border: none;
 }
 
+.App .search {
+  margin-bottom: 50px;
+}
+
 .App .results {
   text-align: left;
   margin-bottom: 60px;
+}
+
+.App .results .no-results{
+  margin-bottom: 120px;
+  opacity: 0.5;
+  text-align: center;
 }
 
 .App .results .result {
@@ -278,7 +289,7 @@ textarea.abi:focus {
   }
 
   .App .address-wrapper div.checkbox {
-    max-width: 480px;
+    max-width: 456px;
   }
 }
 
@@ -292,6 +303,6 @@ textarea.abi:focus {
   }
 
   .App .address-wrapper div.checkbox {
-    max-width: 530px;
+    max-width: 506px;
   }
 }
