@@ -4,7 +4,7 @@ Get the events topics0, function selectors and communicate with contracts by the
 
 You only need to copy and paste the contract address or the ABI (in case the code is not validated on http://etherscan.io) to the corresponding input.
 
-Ropsten and Mainnet (default)
+Works on Ropsten and Mainnet (default)
 
 ### [Try it](https://abitopic.imazzara.com)
 
