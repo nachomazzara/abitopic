@@ -32,10 +32,18 @@ export default class Transaction extends PureComponent<
 
   showTxData = (event: React.FormEvent<any>) => {
     event.preventDefault()
-    this.setState({
-      data: this.getData(event),
-      error: null
-    })
+    try {
+      const data = this.getData(event)
+      this.setState({
+        data: data,
+        error: null
+      })
+    } catch (e) {
+      this.setState({
+        data: '',
+        error: e.message
+      })
+    }
   }
 
   sendTxData = async (event: React.FormEvent<any>) => {
@@ -44,10 +52,10 @@ export default class Transaction extends PureComponent<
     const { contract, funcName, isConstant } = this.props
     const { ethereum, web3 } = window as EthereumWindow
     const fn = isConstant ? web3.eth.call : web3.eth.sendTransaction
-    const data = this.getData(event)
+    try {
+      const data = this.getData(event)
 
-    if (ethereum !== undefined && typeof ethereum.enable === 'function') {
-      try {
+      if (ethereum !== undefined && typeof ethereum.enable === 'function') {
         const net = web3.version.network
         if (
           (this.network === 'ropsten' && net !== '3') ||
@@ -91,12 +99,12 @@ export default class Transaction extends PureComponent<
             error: null
           })
         }
-      } catch (e) {
-        this.setState({
-          link: '',
-          error: e.message
-        })
       }
+    } catch (e) {
+      this.setState({
+        link: '',
+        error: e.message
+      })
     }
   }
 
@@ -139,14 +147,8 @@ export default class Transaction extends PureComponent<
         params.push(element.value)
       }
     }
-    try {
-      return contract.methods[funcName](...params).encodeABI()
-    } catch (e) {
-      this.setState({
-        data: '',
-        error: e.message
-      })
-    }
+
+    return contract.methods[funcName](...params).encodeABI()
   }
 
   render() {
