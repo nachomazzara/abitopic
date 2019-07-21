@@ -12,4 +12,5 @@ export type Func = {
 export type FunctionProps = {
   func: Func
   contract: any
+  blockNumber: string
 }

@@ -10,8 +10,8 @@ export default class Transaction extends PureComponent<
   TransactionProps,
   TransactionState
 > {
-  network = new URLSearchParams(window.location.search).get('network') ||
-  'mainnet'
+  network =
+    new URLSearchParams(window.location.search).get('network') || 'mainnet'
 
   constructor(props: TransactionProps) {
     super(props)
@@ -49,11 +49,23 @@ export default class Transaction extends PureComponent<
   sendTxData = async (event: React.FormEvent<any>) => {
     event.preventDefault()
 
-    const { contract, funcName, isConstant } = this.props
+    const { contract, funcName, isConstant, blockNumber } = this.props
     const { ethereum, web3 } = window as EthereumWindow
     const fn = isConstant ? web3.eth.call : web3.eth.sendTransaction
+
     try {
       const data = this.getData(event)
+      const params: any = [
+        {
+          from: web3.eth.defaultAccount,
+          to: contract.options.address,
+          data
+        }
+      ]
+
+      if (isConstant) {
+        params.push(blockNumber)
+      }
 
       if (ethereum !== undefined && typeof ethereum.enable === 'function') {
         const net = web3.version.network
@@ -62,30 +74,19 @@ export default class Transaction extends PureComponent<
           (this.network === 'mainnet' && net !== '1')
         ) {
           throw new Error(
-            `Your wallet is not on ${
-              this.network
-            }. Please, switch your wallet to ${
-              this.network
-            } if you want to interact with the contract.`
+            `Your wallet is not on ${this.network}. Please, switch your wallet to ${this.network} if you want to interact with the contract.`
           )
         }
         await ethereum.enable()
 
         const res: string = await new Promise((resolve, reject) =>
-          fn(
-            {
-              from: web3.eth.defaultAccount,
-              to: contract.options.address,
-              data
-            },
-            (error: string, res: string) => {
-              if (error) {
-                reject(error)
-              }
-
-              resolve(res)
+          fn(...params, (error: string, res: string) => {
+            if (error) {
+              reject(error)
             }
-          )
+
+            resolve(res)
+          })
         )
 
         if (isConstant) {
@@ -102,6 +103,7 @@ export default class Transaction extends PureComponent<
       }
     } catch (e) {
       this.setState({
+        data: '',
         link: '',
         error: e.message
       })

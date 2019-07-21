@@ -95,13 +95,34 @@ textarea.abi:focus {
 
 .App .tabs {
   margin: 50px auto;
+  display: flex;
+  align-content: center;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.App .tabs div {
+  border-right: 1px solid #383838;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.App .tabs div:last-child {
+  border: none;
+}
+
+.App .tabs div input {
+  font-size: 12px;
+  left: 125px;
+  width: 105px;
 }
 
 .App .tabs a {
   cursor: pointer;
   padding: 0 20px;
   text-decoration: underline;
-  border-right: 1px solid #383838;
   color: #3498db;
   font-size: 22px;
 }
@@ -112,12 +133,12 @@ textarea.abi:focus {
   color: initial;
 }
 
-.App .tabs a:last-child {
-  border: none;
-}
-
 .App .search {
   margin-bottom: 50px;
+}
+
+.App .search input {
+  max-width: 400px;
 }
 
 .App .results {
@@ -271,6 +292,10 @@ textarea.abi:focus {
     width: 50%;
   }
 
+  .App .tabs div input {
+    position: absolute;
+  }
+
   .result .original {
     font-size: 85%;
   }
@@ -305,4 +330,13 @@ textarea.abi:focus {
   .App .address-wrapper div.checkbox {
     max-width: 506px;
   }
+}
+
+/* Hide HTML5 Up and Down arrows. */
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }

@@ -15,4 +15,5 @@ export type State = {
   isProxy: boolean
   isLoading: boolean,
   search: string
+  blockNumber: string
 }
