@@ -6,6 +6,7 @@ export type TransactionProps = {
   outputs: Type[]
   isConstant: boolean
   contract: any
+  blockNumber: string
 }
 export type TransactionState = {
   data: string

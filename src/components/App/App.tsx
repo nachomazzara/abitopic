@@ -37,6 +37,7 @@ export default class App extends Component<any, State> {
       isProxy: false,
       isLoading: false,
       search: '',
+      blockNumber: 'latest',
       apiNetwork: `https://api${
         network === 'ropsten' ? `-${network}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
@@ -218,15 +219,23 @@ export default class App extends Component<any, State> {
     </div>
   )
 
-  renderFunctions = (functions: Func[]) => (
-    <div className="results">
-      {functions.length > 0
-        ? functions.map((func, index) => (
-            <Function key={index} func={func} contract={this.state.contract} />
-          ))
-        : this.renderEmptyResult()}
-    </div>
-  )
+  renderFunctions = (functions: Func[]) => {
+    const { contract, blockNumber } = this.state
+    return (
+      <div className="results">
+        {functions.length > 0
+          ? functions.map((func, index) => (
+              <Function
+                key={index}
+                func={func}
+                contract={contract}
+                blockNumber={blockNumber}
+              />
+            ))
+          : this.renderEmptyResult()}
+      </div>
+    )
+  }
 
   renderEmptyResult = () => <p className="no-results">No results...</p>
 
@@ -240,6 +249,13 @@ export default class App extends Component<any, State> {
     this.setState({ search: e.currentTarget.value })
   }
 
+  handleBlockNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({
+      blockNumber:
+        e.currentTarget.value.length > 0 ? e.currentTarget.value : 'latest'
+    })
+  }
+
   render() {
     const {
       events,
@@ -250,7 +266,8 @@ export default class App extends Component<any, State> {
       network,
       isProxy,
       isLoading,
-      search
+      search,
+      blockNumber
     } = this.state
     const abiStr = abi
       ? JSON.stringify(abi)
@@ -311,18 +328,30 @@ export default class App extends Component<any, State> {
           {events && functions && (
             <React.Fragment>
               <div className="tabs">
-                <a
-                  className={this.isActive(TABS.EVENTS) ? 'active' : ''}
-                  onClick={() => this.onChangeTab(TABS.EVENTS)}
-                >
-                  {TABS.EVENTS}
-                </a>
-                <a
-                  className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
-                  onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
-                >
-                  {TABS.FUNCTIONS}
-                </a>
+                <div>
+                  <a
+                    className={this.isActive(TABS.EVENTS) ? 'active' : ''}
+                    onClick={() => this.onChangeTab(TABS.EVENTS)}
+                  >
+                    {TABS.EVENTS}
+                  </a>
+                </div>
+                <div>
+                  <a
+                    className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
+                    onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
+                  >
+                    {TABS.FUNCTIONS}
+                  </a>
+                  {this.isActive(TABS.FUNCTIONS) && (
+                    <input
+                      type="number"
+                      placeholder="BlockNo: latest"
+                      onChange={this.handleBlockNumberChange}
+                      value={blockNumber === 'latest' ? '' : blockNumber}
+                    />
+                  )}
+                </div>
               </div>
               <div className="search">
                 <input

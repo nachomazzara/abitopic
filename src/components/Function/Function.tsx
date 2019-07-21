@@ -6,7 +6,7 @@ import Text from '../../components/Text' // @TODO: components as paths'
 
 export default class Function extends PureComponent<FunctionProps> {
   render() {
-    const { func, contract } = this.props
+    const { func, contract, blockNumber } = this.props
 
     return (
       <React.Fragment>
@@ -24,6 +24,7 @@ export default class Function extends PureComponent<FunctionProps> {
               outputs={func.outputs}
               isConstant={func.isConstant}
               contract={contract}
+              blockNumber={blockNumber}
             />
           )}
         </div>
