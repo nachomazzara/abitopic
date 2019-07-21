@@ -66,3 +66,10 @@ async function getAddressByStorageSlot(
 
   return address
 }
+
+export function sanitizeABI(abi: string) {
+  return abi.trim()
+    .replace(/(\r\n|\n|\r)/gm, '')
+    .replace(/\s+/g, '')
+    .replace(/(\w+:)|(\w+ :)/g, matchedStr => `"${matchedStr.substring(0, matchedStr.length - 1)}":`)
+}

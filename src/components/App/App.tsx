@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import logo from './logo.svg'
-import { findABIForProxy } from '../../lib/utils'
+import { findABIForProxy, sanitizeABI } from '../../lib/utils'
 import Loader from '../../components/Loader' // @TODO: components as paths
 import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
@@ -44,17 +44,17 @@ export default class App extends Component<any, State> {
     }
   }
 
-  getByABI = (e: any) => {
+  getByABI = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault()
-    this.decode('', e.target.value)
+    this.decode(sanitizeABI(e.currentTarget.value))
   }
 
-  getByAddress = (e: any) => {
+  getByAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
     this.setState({
-      address: e.target.value
+      address: e.currentTarget.value
     })
-    this.getAddress(e.target.value, this.state.isProxy)
+    this.getAddress(e.currentTarget.value, this.state.isProxy)
   }
 
   getABI = async (address: string) => {
@@ -64,7 +64,7 @@ export default class App extends Component<any, State> {
       if (abi.result === 'Contract source code not verified') {
         this.setState({ error: abi.result })
       } else {
-        this.decode(address, abi.result)
+        this.decode(abi.result)
       }
     }
   }
@@ -104,7 +104,7 @@ export default class App extends Component<any, State> {
     })
   }
 
-  decode = (address: string, abi: any) => {
+  decode = (abi: any) => {
     try {
       const validABI = JSON.parse(abi)
       const events: EventType[] = []
@@ -308,37 +308,36 @@ export default class App extends Component<any, State> {
             </div>
           </div>
           <p className="error">{error}</p>
-          {events &&
-            functions && (
-              <React.Fragment>
-                <div className="tabs">
-                  <a
-                    className={this.isActive(TABS.EVENTS) ? 'active' : ''}
-                    onClick={() => this.onChangeTab(TABS.EVENTS)}
-                  >
-                    {TABS.EVENTS}
-                  </a>
-                  <a
-                    className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
-                    onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
-                  >
-                    {TABS.FUNCTIONS}
-                  </a>
-                </div>
-                <div className="search">
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={this.handleSearchChange}
-                    placeholder="Search..."
-                  />
-                </div>
-                {this.isActive(TABS.EVENTS) &&
-                  this.renderEvents(this.filterBySearch(events))}
-                {this.isActive(TABS.FUNCTIONS) &&
-                  this.renderFunctions(this.filterBySearch(functions))}
-              </React.Fragment>
-            )}
+          {events && functions && (
+            <React.Fragment>
+              <div className="tabs">
+                <a
+                  className={this.isActive(TABS.EVENTS) ? 'active' : ''}
+                  onClick={() => this.onChangeTab(TABS.EVENTS)}
+                >
+                  {TABS.EVENTS}
+                </a>
+                <a
+                  className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
+                  onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
+                >
+                  {TABS.FUNCTIONS}
+                </a>
+              </div>
+              <div className="search">
+                <input
+                  type="text"
+                  value={search}
+                  onChange={this.handleSearchChange}
+                  placeholder="Search..."
+                />
+              </div>
+              {this.isActive(TABS.EVENTS) &&
+                this.renderEvents(this.filterBySearch(events))}
+              {this.isActive(TABS.FUNCTIONS) &&
+                this.renderFunctions(this.filterBySearch(functions))}
+            </React.Fragment>
+          )}
           <div className="footer">
             <a target="_blank" href="https://github.com/nachomazzara/abitopic">
               {'{code} 👨‍💻'}
