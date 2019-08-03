@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
+import Dropdown, { Option } from 'react-dropdown'
 
 import logo from './logo.svg'
-import { findABIForProxy, sanitizeABI } from '../../lib/utils'
+import { findABIForProxy, sanitizeABI, getChains } from '../../lib/utils'
 import Loader from '../../components/Loader' // @TODO: components as paths
 import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
@@ -9,6 +10,7 @@ import Event from '../../components/Event' // @TODO: components as paths
 import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
 import { State } from './types'
 
+import 'react-dropdown/style.css'
 import './App.css'
 
 const Web3 = require('web3')
@@ -39,7 +41,7 @@ export default class App extends Component<any, State> {
       search: '',
       blockNumber: 'latest',
       apiNetwork: `https://api${
-        network === 'ropsten' ? `-${network}` : ''
+        network !== 'mainnet' ? `-${network}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
       network
     }
@@ -183,10 +185,11 @@ export default class App extends Component<any, State> {
     document.execCommand('copy')
   }
 
-  changeNetwork = () => {
-    const { network } = this.state as any
+  changeNetwork = (option: Option) => {
+    const { network } = this.state
 
-    const newNetwork = network === 'ropsten' ? 'mainnet' : 'ropsten'
+    const newNetwork = option.value
+
     history.pushState(
       network,
       newNetwork,
@@ -195,7 +198,7 @@ export default class App extends Component<any, State> {
 
     this.setState({
       apiNetwork: `https://api${
-        newNetwork === 'ropsten' ? `-${newNetwork}` : ''
+        newNetwork !== 'mainnet' ? `-${newNetwork}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
       network: newNetwork,
       address: '',
@@ -209,7 +212,7 @@ export default class App extends Component<any, State> {
     this.setState({ activeTab })
   }
 
-  isActive = (tab: string) => tab === (this.state as any).activeTab
+  isActive = (tab: string) => tab === this.state.activeTab
 
   renderEvents = (events: EventType[]) => (
     <div className="results">
@@ -274,15 +277,18 @@ export default class App extends Component<any, State> {
           .replace(/\\"/g, '"')
           .slice(1, -1)
       : ''
+
+    const chains = getChains()
     return (
       <>
         {isLoading && <Loader />}
         <div className="App">
           <div className="header">
-            <p>{`${network}`}</p>
-            <a onClick={this.changeNetwork}>
-              {`Switch to ${network === 'ropsten' ? 'mainnet' : 'ropsten'}`}
-            </a>
+            <Dropdown
+              options={chains}
+              onChange={this.changeNetwork}
+              value={network}
+            />
           </div>
           <h1>{'ABItopic'}</h1>
           <h2>

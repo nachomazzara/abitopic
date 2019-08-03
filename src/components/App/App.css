@@ -7,21 +7,30 @@
 }
 
 .App .header {
-  text-align: right;
+  display: flex;
   margin-bottom: 40px;
   font-size: 14px;
+  justify-content: flex-end;
+  margin-top: 20px;
 }
 
-.App .header p {
-  font-size: 16px;
-  text-transform: capitalize;
-  margin-bottom: 0;
+.App .header .Dropdown-root {
+  width: 165px;
+  text-align: left;
 }
 
-.App .header a {
-  cursor: pointer;
-  text-decoration: underline;
+.App .header .Dropdown-placeholder {
   color: #14517e;
+}
+
+.App .header .Dropdown-control:hover {
+  box-shadow: unset;
+}
+
+.App .header .Dropdown-control {
+  border: none;
+  padding: 8px 30px 8px 13px;
+  background: transparent;
 }
 
 .App .address-wrapper {
@@ -146,7 +155,7 @@ textarea.abi:focus {
   margin-bottom: 60px;
 }
 
-.App .results .no-results{
+.App .results .no-results {
   margin-bottom: 120px;
   opacity: 0.5;
   text-align: center;
@@ -333,10 +342,11 @@ textarea.abi:focus {
 }
 
 /* Hide HTML5 Up and Down arrows. */
-input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
 
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
