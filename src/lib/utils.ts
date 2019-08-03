@@ -16,7 +16,7 @@ export async function findABIForProxy(
 ): Promise<string | undefined> {
   const api = `https://api${
     network === 'ropsten' ? `-${network}` : ''
-    }.etherscan.io/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
+  }.etherscan.io/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
 
   let address
   for (let { topic, indexed, dataIndex } of TOPICS_FOR_PROXYS) {
@@ -54,7 +54,7 @@ async function getAddressByStorageSlot(
 ): Promise<string | undefined> {
   const res = await fetch(
     `https://api${
-    network === 'ropsten' ? `-${network}` : ''
+      network === 'ropsten' ? `-${network}` : ''
     }.etherscan.io/api?module=proxy&action=eth_getStorageAt&address=${proxyAddress}&position=0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3&tag=latest`
   )
   const data = (await res.json()).result
@@ -68,8 +68,22 @@ async function getAddressByStorageSlot(
 }
 
 export function sanitizeABI(abi: string) {
-  return abi.trim()
+  return abi
+    .trim()
     .replace(/(\r\n|\n|\r)/gm, '')
     .replace(/\s+/g, '')
-    .replace(/(\w+:)|(\w+ :)/g, matchedStr => `"${matchedStr.substring(0, matchedStr.length - 1)}":`)
+    .replace(
+      /(\w+:)|(\w+ :)/g,
+      matchedStr => `"${matchedStr.substring(0, matchedStr.length - 1)}":`
+    )
+}
+
+export function getChains() {
+  return [
+    { value: 'mainnet', label: 'Ethereum Mainnet' },
+    { value: 'ropsten', label: 'Ropsten Testnet' },
+    { value: 'kovan', label: 'Kovan Testnet' },
+    { value: 'rinkeby', label: 'Rinkeby Testnet' },
+    { value: 'goerli', label: 'Goerli Testnet' }
+  ]
 }

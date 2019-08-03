@@ -13,7 +13,7 @@ export type State = {
   apiNetwork: string
   network: string
   isProxy: boolean
-  isLoading: boolean,
+  isLoading: boolean
   search: string
   blockNumber: string
 }
