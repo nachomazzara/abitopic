@@ -25,26 +25,35 @@ export default class App extends Component<any, State> {
 
   constructor(props: any) {
     super(props)
-    const network =
-      new URLSearchParams(window.location.search).get('network') || 'mainnet'
+    const searchParams = new URLSearchParams(window.location.search)
+
+    const network = searchParams.get('network') || 'mainnet'
+    const address = searchParams.get('address') || ''
+    const isProxy = !!searchParams.get('isProxy')
+
     this.state = {
       contract: null,
-      address: '',
       abi: null,
       originalABI: null,
       events: null,
       functions: null,
       error: null,
       activeTab: TABS.EVENTS,
-      isProxy: false,
       isLoading: false,
       search: '',
       blockNumber: 'latest',
       apiNetwork: `https://api${
         network !== 'mainnet' ? `-${network}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
+      address,
+      isProxy,
       network
     }
+  }
+
+  componentWillMount() {
+    const { address, isProxy } = this.state
+    this.getAddress(address, isProxy)
   }
 
   getByABI = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -293,7 +302,7 @@ export default class App extends Component<any, State> {
           <h1>{'ABItopic'}</h1>
           <h2>
             {
-              'Get the events topics0, function selectors and communicate with contracts by the'
+              'Get events topic0, function selectors and interact with contracts by the'
             }
             <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
           </h2>
