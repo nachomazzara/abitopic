@@ -3,11 +3,13 @@ import Dropdown, { Option } from 'react-dropdown'
 
 import logo from './logo.svg'
 import { findABIForProxy, sanitizeABI, getChains } from '../../lib/utils'
+import { saveLastUsed, getLastUsed, LastUsed } from '../../lib/localStorage'
 import Loader from '../../components/Loader' // @TODO: components as paths
 import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
 import Event from '../../components/Event' // @TODO: components as paths
 import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
+import { EthereumWindow } from '../../components/Transaction/types'
 import { State } from './types'
 
 import 'react-dropdown/style.css'
@@ -25,15 +27,12 @@ export default class App extends Component<any, State> {
 
   constructor(props: any) {
     super(props)
-    const searchParams = new URLSearchParams(window.location.search)
 
-    const network = searchParams.get('network') || 'mainnet'
-    const address = searchParams.get('address') || ''
-    const isProxy = !!searchParams.get('isProxy')
+    const { network, address, abi, isProxy } = this.getInitParams()
 
     this.state = {
       contract: null,
-      abi: null,
+      abi: abi,
       originalABI: null,
       events: null,
       functions: null,
@@ -51,14 +50,52 @@ export default class App extends Component<any, State> {
     }
   }
 
+  getInitParams = () => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const paths = window.location.pathname.split('/').splice(1)
+    const lastUsed = getLastUsed()
+    const hasPath = paths.length > 0
+
+    let network, address, abi, isProxy
+
+    if (hasPath) {
+      address = web3.utils.isAddress(paths[0]) ? paths[0] : null
+      isProxy =
+        paths.length > 1 && paths[1].indexOf('proxy') !== -1 ? true : isProxy
+    }
+    if (lastUsed) {
+      network = lastUsed.network
+      address = address ? address : lastUsed.address
+      isProxy = isProxy ? isProxy : lastUsed.isProxy
+      abi = hasPath ? null : lastUsed.abi
+    }
+
+    return {
+      network: searchParams.get('network') || network || 'mainnet',
+      address: searchParams.get('address') || address || '',
+      isProxy: searchParams.get('isProxy')
+        ? !!searchParams.get('isProxy')
+        : !!isProxy,
+      abi
+    }
+  }
+
   componentWillMount() {
     const { address, isProxy } = this.state
     this.getAddress(address, isProxy)
+
+    const { ethereum } = (window as unknown) as EthereumWindow
+
+    if (ethereum) {
+      ethereum.autoRefreshOnNetworkChange = false
+    }
   }
 
   getByABI = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault()
-    this.decode(sanitizeABI(e.currentTarget.value))
+    const abi = sanitizeABI(e.currentTarget.value)
+    this.decode(abi)
+    this.saveAction({ abi: abi })
   }
 
   getByAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +104,7 @@ export default class App extends Component<any, State> {
       address: e.currentTarget.value
     })
     this.getAddress(e.currentTarget.value, this.state.isProxy)
+    this.saveAction({ address: e.currentTarget.value })
   }
 
   getABI = async (address: string) => {
@@ -79,6 +117,8 @@ export default class App extends Component<any, State> {
         this.decode(abi.result)
       }
     }
+
+    this.saveAction({})
   }
 
   getABIforProxy = async () => {
@@ -87,25 +127,32 @@ export default class App extends Component<any, State> {
       this.getAddress(address, !isProxy)
     }
     this.setState({ isProxy: !isProxy })
+    this.saveAction({ isProxy: !isProxy })
   }
 
-  getAddress = async (address: string, isProxy: boolean) => {
+  getAddress = async (address: string, isProxy: boolean, network?: string) => {
     this.setState({
       isLoading: true
     })
 
-    const { network } = this.state
     if (isProxy) {
       const implementationAddress = await findABIForProxy(
         web3,
-        network,
+        network ? network : this.state.network,
         address
       )
       if (implementationAddress) {
         await this.getABI(implementationAddress)
       } else {
         this.setState({
-          error: 'No implementation found. Please contact me @nachomazzara'
+          error: (
+            <p>
+              {'No implementation found. Please contact me'}
+              <a href="https://twitter.com/nachomazzara" target="_blank">
+                {'@nachomazzara'}
+              </a>
+            </p>
+          )
         })
       }
     } else {
@@ -114,6 +161,7 @@ export default class App extends Component<any, State> {
     this.setState({
       isLoading: false
     })
+    this.saveAction({ address, isProxy, network })
   }
 
   decode = (abi: any) => {
@@ -136,6 +184,9 @@ export default class App extends Component<any, State> {
                 {index > 0 ? ' ' : ''}
                 <span>
                   {input.type}{' '}
+                  {input.indexed ? (
+                    <label className="param-indexed">{'indexed '}</label>
+                  ) : null}
                   <label className="param-name">{input.name}</label>
                   {index !== method.inputs.length - 1 ? ', ' : ''}
                 </span>
@@ -195,7 +246,7 @@ export default class App extends Component<any, State> {
   }
 
   changeNetwork = (option: Option) => {
-    const { network } = this.state
+    const { network, address, isProxy } = this.state
 
     const newNetwork = option.value
 
@@ -210,11 +261,12 @@ export default class App extends Component<any, State> {
         newNetwork !== 'mainnet' ? `-${newNetwork}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
       network: newNetwork,
-      address: '',
-      abi: null,
       events: null,
       error: null
     })
+
+    this.getAddress(address, isProxy, newNetwork)
+    this.saveAction({ network: newNetwork })
   }
 
   onChangeTab = (activeTab: string) => {
@@ -266,6 +318,11 @@ export default class App extends Component<any, State> {
       blockNumber:
         e.currentTarget.value.length > 0 ? e.currentTarget.value : 'latest'
     })
+  }
+
+  saveAction = (options: Partial<LastUsed>) => {
+    const { network, address, abi, isProxy } = this.state
+    saveLastUsed(Object.assign({ network, address, abi, isProxy }, options))
   }
 
   render() {
@@ -385,6 +442,12 @@ export default class App extends Component<any, State> {
           <div className="footer">
             <a target="_blank" href="https://github.com/nachomazzara/abitopic">
               {'{code} 👨‍💻'}
+            </a>
+            <a
+              target="_blank"
+              href="https://etherscan.com/address/0x2FFDbd3e8B682eDC3e7a9ced16Eba60423D3BFb6"
+            >
+              {'Donate ❤️'}
             </a>
           </div>
         </div>

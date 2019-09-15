@@ -155,7 +155,7 @@ export default class Transaction extends PureComponent<
 
   render() {
     const { data, link, error } = this.state
-    const { inputs, outputs } = this.props
+    const { inputs, outputs, funcName } = this.props
 
     return (
       <React.Fragment>
@@ -164,7 +164,7 @@ export default class Transaction extends PureComponent<
             <div key={index} className="input-row">
               <label>{input.name}</label>
               <input
-                key={index}
+                key={`${funcName}-${index}`}
                 type="text"
                 name={input.type}
                 placeholder={`${input.name} <${input.type}>`}

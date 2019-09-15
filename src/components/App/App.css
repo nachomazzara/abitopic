@@ -102,8 +102,13 @@ textarea.abi:focus {
   font-size: 20px;
 }
 
+.App .error a {
+  margin-left: 5px;
+  color: inherit;
+}
+
 .App .tabs {
-  margin: 50px auto;
+  margin: 30px auto;
   display: flex;
   align-content: center;
   text-align: center;
@@ -143,7 +148,7 @@ textarea.abi:focus {
 }
 
 .App .search {
-  margin-bottom: 50px;
+  margin-bottom: 40px;
 }
 
 .App .search input {
@@ -176,6 +181,10 @@ textarea.abi:focus {
   color: #828282;
   margin-top: 0;
   font-size: 12px;
+}
+
+.result .param-indexed {
+  color: #e13636;
 }
 
 .result .param-name {
@@ -232,14 +241,15 @@ textarea.abi:focus {
   text-align: right;
   background: #1f1f1f;
   height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .App .footer a {
   color: white;
   font-size: 18px;
   text-decoration: none;
-  margin-top: 16px;
-  display: block;
   margin-right: 20px;
 }
 
