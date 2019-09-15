@@ -102,6 +102,11 @@ textarea.abi:focus {
   font-size: 20px;
 }
 
+.App .error a {
+  margin-left: 5px;
+  color: inherit;
+}
+
 .App .tabs {
   margin: 30px auto;
   display: flex;

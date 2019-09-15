@@ -1,8 +1,5 @@
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:moz="http://www.mozilla.org/2006/browser/search/">
 <ShortName>Abitopic</ShortName>
-<Description>
-Address</Description>
-<InputEncoding>UTF-8</InputEncoding>
-<Image width="16" height="16" type="image/x-icon">your site favicon</Image>
-<Url type="text/html" method="get" template="http://www.abitopic.imazzara.com/search/?query={searchTerms}"/>
+<Url type="text/html" rel="self" template="https://abitopic.imazzara.com/{searchTerms}"/>
+<Url type="application/opensearchdescription+xml" rel="self" template="https://abitopic.imazzara.com/{searchTerms}"/>
 </OpenSearchDescription>

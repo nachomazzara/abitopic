@@ -145,7 +145,14 @@ export default class App extends Component<any, State> {
         await this.getABI(implementationAddress)
       } else {
         this.setState({
-          error: 'No implementation found. Please contact me @nachomazzara'
+          error: (
+            <p>
+              {'No implementation found. Please contact me'}
+              <a href="https://twitter.com/nachomazzara" target="_blank">
+                {'@nachomazzara'}
+              </a>
+            </p>
+          )
         })
       }
     } else {

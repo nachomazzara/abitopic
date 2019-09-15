@@ -1,5 +1,6 @@
 import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
+import { ReactElement } from 'react'
 
 export type State = {
   contract: any
@@ -8,7 +9,7 @@ export type State = {
   originalABI: any
   events: EventType[] | null
   functions: Func[] | null
-  error: string | null
+  error: string | ReactElement<HTMLElement> | null
   activeTab: string
   apiNetwork: string
   network: string
