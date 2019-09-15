@@ -433,6 +433,12 @@ export default class App extends Component<any, State> {
             <a target="_blank" href="https://github.com/nachomazzara/abitopic">
               {'{code} 👨‍💻'}
             </a>
+            <a
+              target="_blank"
+              href="https://etherscan.com/address/0x2FFDbd3e8B682eDC3e7a9ced16Eba60423D3BFb6"
+            >
+              {'Donate ❤️'}
+            </a>
           </div>
         </div>
       </>

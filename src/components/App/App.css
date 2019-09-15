@@ -232,14 +232,15 @@ textarea.abi:focus {
   text-align: right;
   background: #1f1f1f;
   height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .App .footer a {
   color: white;
   font-size: 18px;
   text-decoration: none;
-  margin-top: 16px;
-  display: block;
   margin-right: 20px;
 }
 
