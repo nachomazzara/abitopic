@@ -20,6 +20,8 @@ export interface EthereumWindow {
     isApproved: () => Promise<boolean>
 
     enable?: () => Promise<string[]>
+
+    autoRefreshOnNetworkChange: boolean
   }
   web3?: any
 }

@@ -9,6 +9,7 @@ import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
 import Event from '../../components/Event' // @TODO: components as paths
 import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
+import { EthereumWindow } from '../../components/Transaction/types'
 import { State } from './types'
 
 import 'react-dropdown/style.css'
@@ -82,6 +83,12 @@ export default class App extends Component<any, State> {
   componentWillMount() {
     const { address, isProxy } = this.state
     this.getAddress(address, isProxy)
+
+    const { ethereum } = (window as unknown) as EthereumWindow
+
+    if (ethereum) {
+      ethereum.autoRefreshOnNetworkChange = false
+    }
   }
 
   getByABI = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
