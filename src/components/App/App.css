@@ -103,7 +103,7 @@ textarea.abi:focus {
 }
 
 .App .tabs {
-  margin: 50px auto;
+  margin: 30px auto;
   display: flex;
   align-content: center;
   text-align: center;
@@ -143,7 +143,7 @@ textarea.abi:focus {
 }
 
 .App .search {
-  margin-bottom: 50px;
+  margin-bottom: 40px;
 }
 
 .App .search input {
@@ -176,6 +176,10 @@ textarea.abi:focus {
   color: #828282;
   margin-top: 0;
   font-size: 12px;
+}
+
+.result .param-indexed {
+  color: #e13636;
 }
 
 .result .param-name {

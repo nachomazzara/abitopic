@@ -177,6 +177,9 @@ export default class App extends Component<any, State> {
                 {index > 0 ? ' ' : ''}
                 <span>
                   {input.type}{' '}
+                  {input.indexed ? (
+                    <label className="param-indexed">{'indexed '}</label>
+                  ) : null}
                   <label className="param-name">{input.name}</label>
                   {index !== method.inputs.length - 1 ? ', ' : ''}
                 </span>
