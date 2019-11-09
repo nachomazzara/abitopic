@@ -1,10 +1,12 @@
+import { Contract } from 'web3-eth-contract/types'
+
 export type Type = { type: string; name: string }
 
 export type TransactionProps = {
   funcName: string
   inputs: Type[]
   outputs: Type[]
-  contract: any
+  contract: Contract
   blockNumber: string
   isConstant: boolean
   isPayable: boolean
@@ -29,6 +31,5 @@ export interface EthereumWindow {
 
     autoRefreshOnNetworkChange: boolean
   }
-  web3?: any
 }
 

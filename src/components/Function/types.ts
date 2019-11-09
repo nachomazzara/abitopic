@@ -1,3 +1,5 @@
+import { Contract } from 'web3-eth-contract/types'
+
 import { Type } from '../../components/Transaction/types'
 
 export type Func = {
@@ -12,6 +14,6 @@ export type Func = {
 
 export type FunctionProps = {
   func: Func
-  contract: any
+  contract: Contract
   blockNumber: string
 }
