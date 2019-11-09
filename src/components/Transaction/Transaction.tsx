@@ -154,7 +154,7 @@ export default class Transaction extends PureComponent<
       const element = elements[i]
       if (isPayable && i === 0) {
         const { web3 } = window as EthereumWindow
-        console.log(web3)
+
         value = web3.toWei(element.value)
         continue
       }
