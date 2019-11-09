@@ -169,7 +169,7 @@ export default class App extends Component<any, State> {
       const validABI = JSON.parse(abi)
       const events: EventType[] = []
       const functions: Func[] = []
-      const constants = []
+
       for (const method of validABI) {
         if (!method.name) continue
 
@@ -210,7 +210,8 @@ export default class App extends Component<any, State> {
               original,
               isConstant: method.constant,
               inputs: method.inputs,
-              outputs: method.outputs
+              outputs: method.outputs,
+              isPayable: method.payable
             })
             break
           }
