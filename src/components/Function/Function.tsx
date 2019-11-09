@@ -22,9 +22,10 @@ export default class Function extends PureComponent<FunctionProps> {
               funcName={func.name}
               inputs={func.inputs}
               outputs={func.outputs}
-              isConstant={func.isConstant}
               contract={contract}
               blockNumber={blockNumber}
+              isConstant={func.isConstant}
+              isPayable={func.isPayable}
             />
           )}
         </div>

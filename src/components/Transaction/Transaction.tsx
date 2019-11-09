@@ -1,6 +1,11 @@
 import React, { PureComponent } from 'react'
 
-import { TransactionProps, TransactionState, EthereumWindow } from './types'
+import {
+  TransactionProps,
+  TransactionState,
+  EthereumWindow,
+  TxData
+} from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
 import './Transaction.css'
 
@@ -33,7 +38,7 @@ export default class Transaction extends PureComponent<
   showTxData = (event: React.FormEvent<any>) => {
     event.preventDefault()
     try {
-      const data = this.getData(event)
+      const { data } = this.getData(event)
       this.setState({
         data: data,
         error: null
@@ -49,17 +54,19 @@ export default class Transaction extends PureComponent<
   sendTxData = async (event: React.FormEvent<any>) => {
     event.preventDefault()
 
-    const { contract, funcName, isConstant, blockNumber } = this.props
+    const { contract, isConstant, blockNumber } = this.props
     const { ethereum, web3 } = window as EthereumWindow
     const fn = isConstant ? web3.eth.call : web3.eth.sendTransaction
 
     try {
-      const data = this.getData(event)
+      const { data, value } = this.getData(event)
+
       const params: any = [
         {
           from: web3.eth.defaultAccount,
           to: contract.options.address,
-          data
+          data,
+          value
         }
       ]
 
@@ -133,16 +140,24 @@ export default class Transaction extends PureComponent<
 
   getLink = (txHash: string) => {
     return `https://${
-      this.network === 'ropsten' ? `${this.network}.` : ''
+      this.network !== 'mainnet' ? `${this.network}.` : ''
     }etherscan.io/tx/${txHash}`
   }
 
-  getData = (event: React.FormEvent<any>) => {
-    const { contract, funcName } = this.props
+  getData = (event: React.FormEvent<any>): TxData => {
+    const { contract, funcName, isPayable } = this.props
     const elements = event.currentTarget.form
     const params = []
+    let value = '0'
+
     for (let i = 0; i < elements.length; i++) {
       const element = elements[i]
+      if (isPayable && i === 0) {
+        const { web3 } = window as EthereumWindow
+
+        value = web3.toWei(element.value)
+        continue
+      }
       if (element.name.indexOf('[') !== -1) {
         params.push(this.toArrayInput(element.value))
       } else if (element.type === 'text') {
@@ -150,16 +165,27 @@ export default class Transaction extends PureComponent<
       }
     }
 
-    return contract.methods[funcName](...params).encodeABI()
+    return { data: contract.methods[funcName](...params).encodeABI(), value }
   }
 
   render() {
     const { data, link, error } = this.state
-    const { inputs, outputs, funcName } = this.props
+    const { isPayable, inputs, outputs, funcName } = this.props
 
     return (
       <React.Fragment>
         <form>
+          {isPayable && (
+            <div key={`${funcName}-value`} className="input-row">
+              <label>{'value (Ether)'}</label>
+              <input
+                key={`${funcName}-value`}
+                type="text"
+                name="uint256"
+                placeholder={`payable amount <uint256>`}
+              />
+            </div>
+          )}
           {inputs.map((input, index: number) => (
             <div key={index} className="input-row">
               <label>{input.name}</label>

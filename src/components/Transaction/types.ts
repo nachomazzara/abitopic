@@ -4,14 +4,20 @@ export type TransactionProps = {
   funcName: string
   inputs: Type[]
   outputs: Type[]
-  isConstant: boolean
   contract: any
   blockNumber: string
+  isConstant: boolean
+  isPayable: boolean
 }
 export type TransactionState = {
   data: string
   link: string
   error: string | null
+}
+
+export type TxData = {
+  data: string
+  value: string
 }
 
 export interface EthereumWindow {
@@ -25,3 +31,4 @@ export interface EthereumWindow {
   }
   web3?: any
 }
+
