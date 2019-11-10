@@ -4,14 +4,9 @@ import {
   Transaction as Web3Transaction
 } from 'web3-core/types'
 
-import {
-  TransactionProps,
-  TransactionState,
-  EthereumWindow,
-  TxData
-} from './types'
+import { TransactionProps, TransactionState, TxData } from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
-import { getWeb3Instance } from '../../lib/web3'
+import { getWeb3Instance, getDefaultAccount } from '../../lib/web3'
 import { getNetworkNameById } from '../../lib/utils'
 import './Transaction.css'
 
@@ -60,42 +55,39 @@ export default class Transaction extends PureComponent<
     event.preventDefault()
 
     const { contract, isConstant, blockNumber } = this.props
-    const { ethereum } = window as EthereumWindow
     const web3 = getWeb3Instance()
 
     try {
       const { data, value } = this.getData(event)
+      const from = await getDefaultAccount()
 
       const transaction: Web3Transaction = {
-        from: web3.defaultAccount!,
         to: contract.options.address,
+        from,
         data,
         value
       }
 
-      if (ethereum !== undefined && typeof ethereum.enable === 'function') {
-        if (!this.isSameNetwork()) {
-          throw new Error(
-            `Your wallet is not on ${this.network}. Please, switch your wallet to ${this.network} if you want to interact with the contract.`
-          )
-        }
-        await ethereum.enable()
+      if (!(await this.isSameNetwork())) {
+        throw new Error(
+          `Your wallet is not on ${this.network}. Please, switch your wallet to ${this.network} if you want to interact with the contract.`
+        )
+      }
 
-        const res = await (isConstant
-          ? web3.eth.call(transaction, blockNumber)
-          : web3.eth.sendTransaction(transaction))
+      const res = await (isConstant
+        ? web3.eth.call(transaction, blockNumber)
+        : web3.eth.sendTransaction(transaction))
 
-        if (isConstant) {
-          this.setState({
-            data: this.getCall(res as string),
-            error: null
-          })
-        } else {
-          this.setState({
-            link: this.getLink(res as TransactionReceipt),
-            error: null
-          })
-        }
+      if (isConstant) {
+        this.setState({
+          data: this.getCall(res as string),
+          error: null
+        })
+      } else {
+        this.setState({
+          link: this.getLink(res as TransactionReceipt),
+          error: null
+        })
       }
     } catch (e) {
       this.setState({
@@ -106,7 +98,7 @@ export default class Transaction extends PureComponent<
     }
   }
 
-  isSameNetwork = async () => {
+  isSameNetwork = async (): Promise<boolean> => {
     const netId = await this.web3.eth.net.getId()
     return this.network === getNetworkNameById(netId)
   }

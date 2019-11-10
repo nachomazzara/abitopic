@@ -3,9 +3,6 @@ import { EthereumProvider } from 'web3-providers/types'
 
 export interface EthereumWindow {
   ethereum?: EthereumProvider & {
-    _metamask: { isApproved: () => Promise<boolean> }
-    isApproved: () => Promise<boolean>
-
     enable?: () => Promise<string[]>
 
     autoRefreshOnNetworkChange: boolean
@@ -13,7 +10,7 @@ export interface EthereumWindow {
   }
 }
 
-const { ethereum } = (window as unknown) as EthereumWindow
+const { ethereum } = window as EthereumWindow
 
 if (ethereum) {
   ethereum.autoRefreshOnNetworkChange = false
@@ -28,10 +25,27 @@ export function getWeb3Instance(): Web3 {
   const networkChanged = ethereum && ethereum.networkVersion !== chainId
 
   if (!web3 || networkChanged) {
-    console.log('aaaaaa')
     chainId = ethereum ? ethereum.networkVersion : 0
-    web3 = new Web3(ethereum ? ethereum : new Web3.providers.HttpProvider('https://localhost:8545'))
+    web3 = new Web3(
+      ethereum
+        ? ethereum
+        : new Web3.providers.HttpProvider('https://localhost:8545')
+    )
   }
-  console.log('bbbbbb')
   return web3
+}
+
+export async function getDefaultAccount(): Promise<string | undefined> {
+  const { ethereum } = window as EthereumWindow
+
+  try {
+    if (ethereum && ethereum.enable) {
+      await ethereum.enable()
+      const accounts = await getWeb3Instance().eth.getAccounts()
+      return accounts[0]
+    }
+  } catch (e) {
+    console.log(e.message)
+  }
+  return undefined
 }

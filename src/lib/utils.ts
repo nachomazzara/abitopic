@@ -1,6 +1,5 @@
 import { getWeb3Instance } from './web3'
 
-
 export const TOPICS_FOR_PROXYS = [
   {
     topic: '0xe74baeef5988edac1159d9177ca52f0f3d68f624a1996f77467eb3ebfb316537',
@@ -19,7 +18,7 @@ export async function findABIForProxy(
   const web3 = getWeb3Instance()
   const api = `https://api${
     network !== 'ropsten' ? `-${network}` : ''
-    }.etherscan.io/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
+  }.etherscan.io/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
 
   let address
   for (let { topic, indexed, dataIndex } of TOPICS_FOR_PROXYS) {
@@ -57,7 +56,7 @@ async function getAddressByStorageSlot(
 ): Promise<string | undefined> {
   const res = await fetch(
     `https://api${
-    network !== 'ropsten' ? `-${network}` : ''
+      network !== 'ropsten' ? `-${network}` : ''
     }.etherscan.io/api?module=proxy&action=eth_getStorageAt&address=${proxyAddress}&position=0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3&tag=latest`
   )
   const data = (await res.json()).result

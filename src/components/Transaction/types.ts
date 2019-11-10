@@ -21,15 +21,3 @@ export type TxData = {
   data: string
   value: string
 }
-
-export interface EthereumWindow {
-  ethereum?: {
-    _metamask: { isApproved: () => Promise<boolean> }
-    isApproved: () => Promise<boolean>
-
-    enable?: () => Promise<string[]>
-
-    autoRefreshOnNetworkChange: boolean
-  }
-}
-
