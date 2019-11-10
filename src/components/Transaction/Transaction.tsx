@@ -1,8 +1,5 @@
 import React, { PureComponent } from 'react'
-import {
-  TransactionReceipt,
-  Transaction as Web3Transaction
-} from 'web3-core/types'
+import { TransactionReceipt, TransactionConfig } from 'web3-core/types'
 
 import { TransactionProps, TransactionState, TxData } from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
@@ -61,7 +58,7 @@ export default class Transaction extends PureComponent<
       const { data, value } = this.getData(event)
       const from = await getDefaultAccount()
 
-      const transaction: Web3Transaction = {
+      const transaction: TransactionConfig = {
         to: contract.options.address,
         from,
         data,
@@ -112,6 +109,7 @@ export default class Transaction extends PureComponent<
     )
 
     return Object.keys(decodedData)
+      .filter((_, index) => outputs[index])
       .map(
         (key: string, index: number) =>
           `${

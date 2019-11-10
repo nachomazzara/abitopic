@@ -1,8 +1,8 @@
 import Web3 from 'web3'
-import { EthereumProvider } from 'web3-providers/types'
+import { HttpProvider } from 'web3-providers-http/types'
 
 export interface EthereumWindow {
-  ethereum?: EthereumProvider & {
+  ethereum?: HttpProvider & {
     enable?: () => Promise<string[]>
 
     autoRefreshOnNetworkChange: boolean
@@ -46,6 +46,6 @@ export async function getDefaultAccount(): Promise<string | undefined> {
     }
   } catch (e) {
     console.log(e.message)
+    throw new Error('Please connect your wallet')
   }
-  return undefined
 }
