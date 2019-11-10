@@ -247,6 +247,15 @@ textarea.abi:focus {
 }
 
 @media (min-width: 992px) {
+  .App .wrapper {
+    display: flex;
+    text-align: center;
+  }
+
+  .App .wrapper div {
+    width: 50%;
+  }
+
   .App .tabs div input {
     position: absolute;
   }

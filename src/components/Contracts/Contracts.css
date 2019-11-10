@@ -52,14 +52,3 @@
   text-decoration: none;
   margin-right: 20px;
 }
-
-@media (min-width: 992px) {
-  .App .wrapper {
-    display: flex;
-    text-align: center;
-  }
-
-  .App .wrapper div {
-    width: 50%;
-  }
-}

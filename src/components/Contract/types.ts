@@ -13,10 +13,13 @@ export type State = {
   functions: Func[] | null
   error: string | ReactElement<HTMLElement> | null
   activeTab: string
-  apiNetwork: string
-  network: string
   isProxy: boolean
-  isLoading: boolean
   search: string
   blockNumber: string
+  isLoading: boolean
+}
+
+export type Props = {
+  network: string
+  apiNetwork: string
 }

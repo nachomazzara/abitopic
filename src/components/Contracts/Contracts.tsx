@@ -1,29 +1,69 @@
 import React, { Component } from 'react'
-import Dropdown from 'react-dropdown'
+import Dropdown, { Option } from 'react-dropdown'
 
 import { getChains } from '../../lib/utils'
 import Loader from '../../components/Loader' // @TODO: components as paths
 import Contract from '../../components/Contract'
+import { State } from './types'
 
-import 'react-dropdown/style.css'
 import './Contracts.css'
 
-export default class Contracts extends Component<any, any> {
+export default class Contracts extends Component<any, State> {
   textarea: { [key: string]: any } = {}
 
   constructor(props: any) {
     super(props)
+
+    const { network } = this.getInitParams()
+
+    this.state = {
+      apiNetwork: `https://api${
+        network !== 'mainnet' ? `-${network}` : ''
+      }.etherscan.io/api?module=contract&action=getabi&address=`,
+      network
+    }
   }
 
-  changeNetwork = () => {}
+  getInitParams = () => {
+    const searchParams = new URLSearchParams(window.location.search)
+    // @TOOD: const lastUsed = getLastUsed()
+
+    let network
+
+    // if (lastUsed) {
+    //   network = lastUsed.network
+    // }
+
+    return {
+      network: searchParams.get('network') || network || 'mainnet'
+    }
+  }
+
+  changeNetwork = (option: Option) => {
+    const { network } = this.props
+
+    const newNetwork = option.value
+
+    history.pushState(
+      network,
+      newNetwork,
+      `${window.location.origin}?network=${newNetwork}`
+    )
+
+    this.setState({
+      apiNetwork: `https://api${
+        newNetwork !== 'mainnet' ? `-${newNetwork}` : ''
+      }.etherscan.io/api?module=contract&action=getabi&address=`,
+      network: newNetwork
+    })
+  }
 
   render() {
-    const { network, isLoading } = this.state
+    const { network, apiNetwork } = this.state
 
     const chains = getChains()
     return (
       <>
-        {isLoading && <Loader />}
         <div className="App">
           <div className="header">
             <Dropdown
@@ -39,8 +79,8 @@ export default class Contracts extends Component<any, any> {
             }
             <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
           </h2>
-          <div className="wrapper">
-            <Contract />
+          <div>
+            <Contract network={network} apiNetwork={apiNetwork} />
           </div>
           <div className="footer">
             <a target="_blank" href="https://github.com/nachomazzara/abitopic">
