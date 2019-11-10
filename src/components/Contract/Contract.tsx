@@ -12,14 +12,14 @@ import { Event as EventType } from '../../components/Event/types' // @TODO: comp
 import { State } from './types'
 
 import 'react-dropdown/style.css'
-import './App.css'
+import './Contract.css'
 
 const TABS = {
   FUNCTIONS: 'Functions',
   EVENTS: 'Events'
 }
 
-export default class App extends Component<any, State> {
+export default class Contract extends Component<any, State> {
   textarea: { [key: string]: any } = {}
   web3 = getWeb3Instance()
 
