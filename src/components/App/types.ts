@@ -1,9 +1,11 @@
+import { Contract } from 'web3-eth-contract/types'
+
 import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
 import { ReactElement } from 'react'
 
 export type State = {
-  contract: any
+  contract: Contract | null
   address: string
   abi: any
   originalABI: any

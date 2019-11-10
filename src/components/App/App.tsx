@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Dropdown, { Option } from 'react-dropdown'
 
-import logo from './logo.svg'
+import { getWeb3Instance } from '../../lib/web3'
 import { findABIForProxy, sanitizeABI, getChains } from '../../lib/utils'
 import { saveLastUsed, getLastUsed, LastUsed } from '../../lib/localStorage'
 import Loader from '../../components/Loader' // @TODO: components as paths
@@ -9,14 +9,11 @@ import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
 import Event from '../../components/Event' // @TODO: components as paths
 import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
-import { EthereumWindow } from '../../components/Transaction/types'
 import { State } from './types'
 
 import 'react-dropdown/style.css'
 import './App.css'
 
-const Web3 = require('web3')
-const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 const TABS = {
   FUNCTIONS: 'Functions',
   EVENTS: 'Events'
@@ -24,6 +21,7 @@ const TABS = {
 
 export default class App extends Component<any, State> {
   textarea: { [key: string]: any } = {}
+  web3 = getWeb3Instance()
 
   constructor(props: any) {
     super(props)
@@ -59,7 +57,7 @@ export default class App extends Component<any, State> {
     let network, address, abi, isProxy
 
     if (hasPath) {
-      address = web3.utils.isAddress(paths[0]) ? paths[0] : null
+      address = this.web3.utils.isAddress(paths[0]) ? paths[0] : null
       isProxy =
         paths.length > 1 && paths[1].indexOf('proxy') !== -1 ? true : isProxy
     }
@@ -83,12 +81,6 @@ export default class App extends Component<any, State> {
   componentWillMount() {
     const { address, isProxy } = this.state
     this.getAddress(address, isProxy)
-
-    const { ethereum } = (window as unknown) as EthereumWindow
-
-    if (ethereum) {
-      ethereum.autoRefreshOnNetworkChange = false
-    }
   }
 
   getByABI = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -137,7 +129,6 @@ export default class App extends Component<any, State> {
 
     if (isProxy) {
       const implementationAddress = await findABIForProxy(
-        web3,
         network ? network : this.state.network,
         address
       )
@@ -198,12 +189,12 @@ export default class App extends Component<any, State> {
 
         switch (method.type) {
           case 'event': {
-            const signature = web3.utils.sha3(name)
+            const signature = this.web3.utils.sha3(name)
             events.push({ name, signature, original })
             break
           }
           case 'function': {
-            const selector = web3.eth.abi.encodeFunctionSignature(name)
+            const selector = this.web3.eth.abi.encodeFunctionSignature(name)
             functions.push({
               name,
               selector,
@@ -220,7 +211,7 @@ export default class App extends Component<any, State> {
         }
       }
 
-      const contract = new web3.eth.Contract(
+      const contract = new this.web3.eth.Contract(
         JSON.parse(abi),
         this.state.address
       )
@@ -293,7 +284,7 @@ export default class App extends Component<any, State> {
               <Function
                 key={index}
                 func={func}
-                contract={contract}
+                contract={contract!}
                 blockNumber={blockNumber}
               />
             ))

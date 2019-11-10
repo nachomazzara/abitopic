@@ -1,20 +1,17 @@
 import React, { PureComponent } from 'react'
+import { TransactionReceipt, TransactionConfig } from 'web3-core/types'
 
-import {
-  TransactionProps,
-  TransactionState,
-  EthereumWindow,
-  TxData
-} from './types'
+import { TransactionProps, TransactionState, TxData } from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
+import { getWeb3Instance, getDefaultAccount } from '../../lib/web3'
+import { getNetworkNameById } from '../../lib/utils'
 import './Transaction.css'
-
-const Web3 = require('web3')
 
 export default class Transaction extends PureComponent<
   TransactionProps,
   TransactionState
 > {
+  web3 = getWeb3Instance()
   network =
     new URLSearchParams(window.location.search).get('network') || 'mainnet'
 
@@ -55,58 +52,39 @@ export default class Transaction extends PureComponent<
     event.preventDefault()
 
     const { contract, isConstant, blockNumber } = this.props
-    const { ethereum, web3 } = window as EthereumWindow
-    const fn = isConstant ? web3.eth.call : web3.eth.sendTransaction
+    const web3 = getWeb3Instance()
 
     try {
       const { data, value } = this.getData(event)
+      const from = await getDefaultAccount()
 
-      const params: any = [
-        {
-          from: web3.eth.defaultAccount,
-          to: contract.options.address,
-          data,
-          value
-        }
-      ]
-
-      if (isConstant) {
-        params.push(blockNumber)
+      const transaction: TransactionConfig = {
+        to: contract.options.address,
+        from,
+        data,
+        value
       }
 
-      if (ethereum !== undefined && typeof ethereum.enable === 'function') {
-        const net = web3.version.network
-        if (
-          (this.network === 'ropsten' && net !== '3') ||
-          (this.network === 'mainnet' && net !== '1')
-        ) {
-          throw new Error(
-            `Your wallet is not on ${this.network}. Please, switch your wallet to ${this.network} if you want to interact with the contract.`
-          )
-        }
-        await ethereum.enable()
-
-        const res: string = await new Promise((resolve, reject) =>
-          fn(...params, (error: string, res: string) => {
-            if (error) {
-              reject(error)
-            }
-
-            resolve(res)
-          })
+      if (!(await this.isSameNetwork())) {
+        throw new Error(
+          `Your wallet is not on ${this.network}. Please, switch your wallet to ${this.network} if you want to interact with the contract.`
         )
+      }
 
-        if (isConstant) {
-          this.setState({
-            data: this.getCall(res),
-            error: null
-          })
-        } else {
-          this.setState({
-            link: this.getLink(res),
-            error: null
-          })
-        }
+      const res = await (isConstant
+        ? web3.eth.call(transaction, blockNumber)
+        : web3.eth.sendTransaction(transaction))
+
+      if (isConstant) {
+        this.setState({
+          data: this.getCall(res as string),
+          error: null
+        })
+      } else {
+        this.setState({
+          link: this.getLink(res as TransactionReceipt),
+          error: null
+        })
       }
     } catch (e) {
       this.setState({
@@ -117,18 +95,21 @@ export default class Transaction extends PureComponent<
     }
   }
 
+  isSameNetwork = async (): Promise<boolean> => {
+    const netId = await this.web3.eth.net.getId()
+    return this.network === getNetworkNameById(netId)
+  }
+
   getCall = (data: string): string => {
     const { outputs } = this.props
 
-    const web3Proxy = new Web3(
-      new Web3.providers.HttpProvider('http://localhost:8545')
-    )
-    const decodedData = web3Proxy.eth.abi.decodeParameters(
+    const decodedData = this.web3.eth.abi.decodeParameters(
       outputs.map(input => input.type),
       data
     )
 
     return Object.keys(decodedData)
+      .filter((_, index) => outputs[index])
       .map(
         (key: string, index: number) =>
           `${
@@ -138,10 +119,10 @@ export default class Transaction extends PureComponent<
       .join('')
   }
 
-  getLink = (txHash: string) => {
+  getLink = (receipt: TransactionReceipt) => {
     return `https://${
       this.network !== 'mainnet' ? `${this.network}.` : ''
-    }etherscan.io/tx/${txHash}`
+    }etherscan.io/tx/${receipt.transactionHash}`
   }
 
   getData = (event: React.FormEvent<any>): TxData => {
@@ -153,9 +134,7 @@ export default class Transaction extends PureComponent<
     for (let i = 0; i < elements.length; i++) {
       const element = elements[i]
       if (isPayable && i === 0) {
-        const { web3 } = window as EthereumWindow
-
-        value = web3.toWei(element.value)
+        value = this.web3.utils.toWei(element.value).toString()
         continue
       }
       if (element.name.indexOf('[') !== -1) {
