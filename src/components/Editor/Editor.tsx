@@ -1,7 +1,12 @@
 import React, { PureComponent } from 'react'
 import MonacoEditor from 'react-monaco-editor'
+import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api'
 
-import { INITIAL_CODE } from '../../lib/utils'
+// @ts-ignore
+import editorTypes from '!!raw-loader!./editorTypes.d.ts'
+// @ts-ignore
+import defaultScript from '!!raw-loader!./defaultScript.js'
+
 import { saveLastUsedCode, getLastUsedCode } from '../../lib/localStorage'
 import { Props, State } from './types'
 
@@ -12,7 +17,7 @@ export default class Editor extends PureComponent<Props, State> {
     super(props)
 
     this.state = {
-      code: getLastUsedCode(props.index) || INITIAL_CODE,
+      code: getLastUsedCode(props.index) || defaultScript,
       showEditor: false,
       isRunning: false,
       output: null
@@ -28,9 +33,18 @@ export default class Editor extends PureComponent<Props, State> {
     this.setState({ code: newValue })
   }
 
+  editorWillMount = (monaco: typeof monacoEditor) => {
+    monaco.editor.createModel(
+      editorTypes,
+      'typescript',
+      monacoEditor.Uri.parse('file://global.d.ts')
+    )
+  }
+
   executeCode = async () => {
     const { code } = this.state
-    const { contract } = this.props
+    const { contract } = this.props // should be available when evaluating the script
+
     let output
     try {
       this.setState({ output: null, isRunning: true })
@@ -43,7 +57,7 @@ export default class Editor extends PureComponent<Props, State> {
   }
 
   resetCode = () => {
-    this.handleCodeChange(INITIAL_CODE)
+    this.handleCodeChange(defaultScript)
   }
 
   render() {
@@ -73,6 +87,7 @@ export default class Editor extends PureComponent<Props, State> {
                 theme="vs-dark"
                 value={code}
                 onChange={this.handleCodeChange}
+                editorWillMount={this.editorWillMount}
                 options={{
                   automaticLayout: true,
                   lineNumbers: 'off',
