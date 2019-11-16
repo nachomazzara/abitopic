@@ -52,21 +52,25 @@ export default class Editor extends PureComponent<Props, State> {
       <>
         {showEditor ? (
           <div className="Editor">
-            <div className="run">
-              <button onClick={this.handleToggleEditor} title="Hide">
-                <i className="hide-icon" />
-                {'Hide'}
-              </button>
-              <button onClick={this.executeCode} title="Run">
-                <i className="run-icon" />
-                {'Run'}
-              </button>
-              <button onClick={this.resetCode} title="Reset">
-                <i className="run-icon" />
-                {'Run'}
-              </button>
-            </div>
             <div className="code-wrapper">
+              <div className="actions">
+                <div className="col left">
+                  <button onClick={this.handleToggleEditor} title="Hide">
+                    <i className="icon hide" />
+                    {'Hide'}
+                  </button>
+                  <button onClick={this.executeCode} title="Run">
+                    <i className="icon run" />
+                    {'Run'}
+                  </button>
+                </div>
+                <div className="col right">
+                  <button onClick={this.resetCode} title="Reset">
+                    <i className="icon reset" />
+                    {'Reset'}
+                  </button>
+                </div>
+              </div>
               <MonacoEditor
                 height="600"
                 language="typescript"

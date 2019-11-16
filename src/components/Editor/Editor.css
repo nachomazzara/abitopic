@@ -17,6 +17,8 @@
   font-weight: 600;
   text-transform: uppercase;
   text-align: center;
+  border-color: #000;
+  border-radius: 3px;
 }
 
 .code-wrapper {
@@ -24,6 +26,7 @@
 }
 
 .output-wrapper {
+  margin-top: 40px;
   border: 1px solid #d8d8d8;
   width: calc(40% - 40px);
   padding: 10px;
@@ -49,13 +52,28 @@
   height: calc(100% - 30px);
 }
 
-.run {
+.actions {
+  height: 40px;
   width: 100%;
   display: flex;
-  align-items: center;
 }
 
-.run button {
+.actions .col {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  align-content: center;
+}
+
+.actions .col.left {
+  justify-content: flex-start;
+}
+
+.actions .col.right {
+  justify-content: flex-end;
+}
+
+.actions button {
   background: transparent;
   border: none;
   outline: none;
@@ -63,21 +81,27 @@
   display: flex;
   -webkit-align-items: center;
   align-items: center;
-  padding: 5px 10px;
+  padding: 6px 13px;
   margin-bottom: 10px;
   font-size: 13px;
   border: 1px solid #d8d8d8;
   border-radius: 3px;
+}
+
+.actions .col.left button {
   margin-right: 15px;
 }
 
-.run-icon,
-.hide-icon {
+.actions .col.right button {
+  margin-left: 15px;
+}
+
+.icon {
   background: none;
   margin-right: 6px;
 }
 
-.run-icon::after {
+.icon.run::after {
   content: '';
   display: inline-block;
   position: relative;
@@ -88,8 +112,7 @@
   border-color: transparent transparent transparent #63aee3;
 }
 
-.hide-icon {
-  content: '';
+.icon.hide {
   display: inline-block;
   position: relative;
   top: 1px;
@@ -97,4 +120,31 @@
   border-style: solid;
   border-width: 1px 0px 1px 12px;
   border-color: #63aee3;
+}
+
+.icon.reset {
+  width: 9px;
+  height: 9px;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 50%;
+  border-left-color: transparent;
+  position: relative;
+  color: #63aee3;
+}
+
+.icon.reset:before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -5px;
+  bottom: 0;
+  border-width: 4px;
+  border-style: solid;
+  border-left-color: transparent;
+  -webkit-transform: rotate(135deg);
+  transform: rotate(135deg);
+  border-bottom-color: transparent;
+  border-right-color: transparent;
 }
