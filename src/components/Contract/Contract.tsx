@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
+import MonacoEditor, { ChangeHandler } from 'react-monaco-editor'
 
 import { getWeb3Instance } from '../../lib/web3'
-import { findABIForProxy, sanitizeABI, getChains } from '../../lib/utils'
+import { findABIForProxy, sanitizeABI } from '../../lib/utils'
 import {
   saveLastUsedContract,
   getLastUsedContract,
@@ -42,6 +43,7 @@ export default class Contract extends Component<Props, State> {
       isLoading: false,
       search: '',
       blockNumber: 'latest',
+      code: '',
       address,
       isProxy
     }
@@ -311,6 +313,11 @@ export default class Contract extends Component<Props, State> {
     )
   }
 
+  handleCodeChange = (newValue: string, e: any) => {
+    //@TODO: type
+    console.log(newValue, e)
+  }
+
   render() {
     const {
       events,
@@ -329,9 +336,17 @@ export default class Contract extends Component<Props, State> {
           .slice(1, -1)
       : ''
 
-    const chains = getChains()
     return (
       <>
+        <MonacoEditor
+          width="600"
+          height="800"
+          language="typescript"
+          theme="vs-dark"
+          defaultValue=""
+          value={this.state.code}
+          onChange={this.handleCodeChange}
+        />
         {isLoading && <Loader />}
         <div className="wrapper">
           <div className="address-wrapper">

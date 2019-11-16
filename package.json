@@ -11,6 +11,7 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-dropdown": "^1.6.4",
+    "react-monaco-editor": "^0.32.1",
     "react-scripts": "^2.1.5",
     "typescript": "3.2.4",
     "web3": "^1.2.2",
