@@ -1,38 +1,3 @@
-.App {
-  text-align: center;
-  max-width: 1200px;
-  width: calc(100% - 40px);
-  padding: 0 20px;
-  margin: 0 auto;
-}
-
-.App .header {
-  display: flex;
-  margin-bottom: 40px;
-  font-size: 14px;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-
-.App .header .Dropdown-root {
-  width: 165px;
-  text-align: left;
-}
-
-.App .header .Dropdown-placeholder {
-  color: #14517e;
-}
-
-.App .header .Dropdown-control:hover {
-  box-shadow: unset;
-}
-
-.App .header .Dropdown-control {
-  border: none;
-  padding: 8px 30px 8px 13px;
-  background: transparent;
-}
-
 .App .address-wrapper {
   display: flex;
   flex-direction: column;
@@ -231,26 +196,6 @@ textarea.abi:focus {
   text-align: left;
   padding: 0;
   display: none;
-}
-
-.App .footer {
-  position: fixed;
-  bottom: 0px;
-  right: 0;
-  width: 100%;
-  text-align: right;
-  background: #1f1f1f;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.App .footer a {
-  color: white;
-  font-size: 18px;
-  text-decoration: none;
-  margin-right: 20px;
 }
 
 @media (min-width: 620px) {
