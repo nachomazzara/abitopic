@@ -106,7 +106,7 @@ export default class Editor extends PureComponent<Props, State> {
                 (typeof output === 'string' ? (
                   output
                 ) : (
-                  <pre> JSON.stringify(output, undefined, 2)} </pre>
+                  <pre> {JSON.stringify(output, undefined, 2)} </pre>
                 ))}
             </div>
           </div>
