@@ -22,4 +22,5 @@ export type State = {
 export type Props = {
   network: string
   apiNetwork: string
+  index: number
 }

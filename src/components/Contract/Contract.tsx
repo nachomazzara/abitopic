@@ -2,7 +2,11 @@ import React, { Component } from 'react'
 
 import { getWeb3Instance } from '../../lib/web3'
 import { findABIForProxy, sanitizeABI, getChains } from '../../lib/utils'
-import { saveLastUsed, getLastUsed, LastUsed } from '../../lib/localStorage'
+import {
+  saveLastUsedContract,
+  getLastUsedContract,
+  LastUsedContract
+} from '../../lib/localStorage'
 import Loader from '../../components/Loader' // @TODO: components as paths
 import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
@@ -46,10 +50,10 @@ export default class Contract extends Component<Props, State> {
   getInitParams = () => {
     const searchParams = new URLSearchParams(window.location.search)
     const paths = window.location.pathname.split('/').splice(1)
-    const lastUsed = getLastUsed()
+    const lastUsed = getLastUsedContract(this.props.index)
     const hasPath = paths.length > 0
 
-    let network, address, abi, isProxy
+    let address, abi, isProxy
 
     if (hasPath) {
       address = this.web3.utils.isAddress(paths[0]) ? paths[0] : null
@@ -57,14 +61,12 @@ export default class Contract extends Component<Props, State> {
         paths.length > 1 && paths[1].indexOf('proxy') !== -1 ? true : isProxy
     }
     if (lastUsed) {
-      network = lastUsed.network
       address = address ? address : lastUsed.address
       isProxy = isProxy ? isProxy : lastUsed.isProxy
       abi = hasPath ? null : lastUsed.abi
     }
 
     return {
-      network: searchParams.get('network') || network || 'mainnet',
       address: searchParams.get('address') || address || '',
       isProxy: searchParams.get('isProxy')
         ? !!searchParams.get('isProxy')
@@ -153,7 +155,7 @@ export default class Contract extends Component<Props, State> {
     this.setState({
       isLoading: false
     })
-    this.saveAction({ address, isProxy, network })
+    this.saveAction({ address, isProxy })
   }
 
   decode = (abi: any) => {
@@ -247,7 +249,6 @@ export default class Contract extends Component<Props, State> {
     })
 
     this.getAddress(address, isProxy, network)
-    this.saveAction({ network })
   }
 
   onChangeTab = (activeTab: string) => {
@@ -301,10 +302,13 @@ export default class Contract extends Component<Props, State> {
     })
   }
 
-  saveAction = (options: Partial<LastUsed>) => {
+  saveAction = (options: Partial<LastUsedContract>) => {
     const { address, abi, isProxy } = this.state
-    const { network } = this.props
-    saveLastUsed(Object.assign({ network, address, abi, isProxy }, options))
+    const { index } = this.props
+    saveLastUsedContract(
+      Object.assign({ address, abi, isProxy }, options),
+      index
+    )
   }
 
   render() {

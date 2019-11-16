@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import Dropdown, { Option } from 'react-dropdown'
 
 import { getChains } from '../../lib/utils'
-import Loader from '../../components/Loader' // @TODO: components as paths
 import Contract from '../../components/Contract'
 import { State } from './types'
 
 import './Contracts.css'
+import { getLastUsedNetwork } from '../../lib/localStorage'
 
 export default class Contracts extends Component<any, State> {
   textarea: { [key: string]: any } = {}
@@ -20,22 +20,17 @@ export default class Contracts extends Component<any, State> {
       apiNetwork: `https://api${
         network !== 'mainnet' ? `-${network}` : ''
       }.etherscan.io/api?module=contract&action=getabi&address=`,
+      contracts: 1,
       network
     }
   }
 
   getInitParams = () => {
     const searchParams = new URLSearchParams(window.location.search)
-    // @TOOD: const lastUsed = getLastUsed()
-
-    let network
-
-    // if (lastUsed) {
-    //   network = lastUsed.network
-    // }
+    const network = getLastUsedNetwork()
 
     return {
-      network: searchParams.get('network') || network || 'mainnet'
+      network: searchParams.get('network') || network
     }
   }
 
@@ -58,8 +53,12 @@ export default class Contracts extends Component<any, State> {
     })
   }
 
+  add = () => {
+    this.setState({ contracts: this.state.contracts + 1 })
+  }
+
   render() {
-    const { network, apiNetwork } = this.state
+    const { network, apiNetwork, contracts } = this.state
 
     const chains = getChains()
     return (
@@ -79,8 +78,27 @@ export default class Contracts extends Component<any, State> {
             }
             <strong>{' address'}</strong> or <strong>{'ABI'}</strong>
           </h2>
+          <button style={{ display: 'none' }} onClick={this.add}>
+            {'Add'}
+          </button>
+          <div style={{ display: 'none' }}>
+            {Array.from(Array(contracts)).map((_, index) => (
+              <div key={index}>{index}</div>
+            ))}
+          </div>
           <div>
-            <Contract network={network} apiNetwork={apiNetwork} />
+            {Array.from(Array(contracts)).map((_, index) => (
+              <div
+                key={index}
+                style={{ display: index === 0 ? 'block' : 'none' }}
+              >
+                <Contract
+                  index={index}
+                  network={network}
+                  apiNetwork={apiNetwork}
+                />
+              </div>
+            ))}
           </div>
           <div className="footer">
             <a target="_blank" href="https://github.com/nachomazzara/abitopic">
