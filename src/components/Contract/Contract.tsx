@@ -268,9 +268,10 @@ export default class Contract extends Component<Props, State> {
 
   renderFunctions = (functions: Func[]) => {
     const { contract, blockNumber } = this.state
+    const { index } = this.props
     return (
       <div className="results">
-        <Editor contract={contract} />
+        <Editor contract={contract} index={index} />
         {functions.length > 0
           ? functions.map((func, index) => (
               <Function
