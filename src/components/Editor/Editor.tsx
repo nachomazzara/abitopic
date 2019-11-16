@@ -12,6 +12,8 @@ import { Props, State } from './types'
 
 import './Editor.css'
 
+export const OUTPUT_HEADLINE = '/***** Output *****/\n'
+
 export default class Editor extends PureComponent<Props, State> {
   constructor(props: Props) {
     super(props)
@@ -101,14 +103,23 @@ export default class Editor extends PureComponent<Props, State> {
               />
             </div>
             <div className="output-wrapper">
-              <p>{'Output:'}</p>
-              {isRunning && <p className="executing">{'Running....'}</p>}
-              {output &&
-                (typeof output === 'string' ? (
-                  output
-                ) : (
-                  <pre> {JSON.stringify(output, undefined, 2)} </pre>
-                ))}
+              <MonacoEditor
+                height="600"
+                language="typescript"
+                theme="vs-dark"
+                value={
+                  OUTPUT_HEADLINE +
+                  (output ? JSON.stringify(output, null, 2) : '')
+                }
+                options={{
+                  readOnly: true,
+                  automaticLayout: true,
+                  lineNumbers: 'off',
+                  minimap: { enabled: false },
+                  fontSize: 10,
+                  folding: false
+                }}
+              />
             </div>
           </div>
         ) : (

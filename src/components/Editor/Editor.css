@@ -22,13 +22,13 @@
 }
 
 .code-wrapper {
-  width: 55%;
+  width: 50%;
 }
 
 .output-wrapper {
   margin-top: 40px;
   border: 1px solid #d8d8d8;
-  width: calc(45% - 20px);
+  width: calc(50% - 10px);
   font-size: 14px;
   height: 600px;
   overflow: hidden;
