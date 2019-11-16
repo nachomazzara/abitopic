@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 
-import { Func, FunctionProps } from './types'
+import { FunctionProps } from './types'
 import Transaction from '../../components/Transaction' // @TODO: components as paths
 import Text from '../../components/Text' // @TODO: components as paths'
 

@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import MonacoEditor, { ChangeHandler } from 'react-monaco-editor'
 
 import { getWeb3Instance } from '../../lib/web3'
 import { findABIForProxy, sanitizeABI } from '../../lib/utils'
@@ -8,6 +7,7 @@ import {
   getLastUsedContract,
   LastUsedContract
 } from '../../lib/localStorage'
+import Editor from '../../components/Editor' // @TODO: components as paths
 import Loader from '../../components/Loader' // @TODO: components as paths
 import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
@@ -27,7 +27,7 @@ export default class Contract extends Component<Props, State> {
   textarea: { [key: string]: any } = {}
   web3 = getWeb3Instance()
 
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props)
 
     const { address, abi, isProxy } = this.getInitParams()
@@ -43,7 +43,6 @@ export default class Contract extends Component<Props, State> {
       isLoading: false,
       search: '',
       blockNumber: 'latest',
-      code: '',
       address,
       isProxy
     }
@@ -271,6 +270,7 @@ export default class Contract extends Component<Props, State> {
     const { contract, blockNumber } = this.state
     return (
       <div className="results">
+        <Editor contract={contract} />
         {functions.length > 0
           ? functions.map((func, index) => (
               <Function
@@ -313,11 +313,6 @@ export default class Contract extends Component<Props, State> {
     )
   }
 
-  handleCodeChange = (newValue: string, e: any) => {
-    //@TODO: type
-    console.log(newValue, e)
-  }
-
   render() {
     const {
       events,
@@ -338,15 +333,6 @@ export default class Contract extends Component<Props, State> {
 
     return (
       <>
-        <MonacoEditor
-          width="600"
-          height="800"
-          language="typescript"
-          theme="vs-dark"
-          defaultValue=""
-          value={this.state.code}
-          onChange={this.handleCodeChange}
-        />
         {isLoading && <Loader />}
         <div className="wrapper">
           <div className="address-wrapper">

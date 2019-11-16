@@ -17,7 +17,6 @@ export type State = {
   search: string
   blockNumber: string
   isLoading: boolean
-  code: string
 }
 
 export type Props = {
