@@ -22,7 +22,8 @@ export default class Editor extends PureComponent<Props, State> {
       code: getLastUsedCode(props.index) || defaultScript,
       showEditor: false,
       isRunning: false,
-      output: null
+      output: null,
+      error: null
     }
   }
 
@@ -50,13 +51,12 @@ export default class Editor extends PureComponent<Props, State> {
 
     let output
     try {
-      this.setState({ output: null, isRunning: true })
+      this.setState({ isRunning: true, output: null, error: null })
       output = await eval(`${code}\nmain()`)
+      this.setState({ output, isRunning: false })
     } catch (e) {
-      output = e.stack
+      this.setState({ error: e.stack, isRunning: false })
     }
-
-    this.setState({ output, isRunning: false })
   }
 
   resetCode = () => {
@@ -64,7 +64,18 @@ export default class Editor extends PureComponent<Props, State> {
   }
 
   render() {
-    const { code, output, isRunning, showEditor } = this.state
+    const { code, output, isRunning, showEditor, error } = this.state
+
+    let outputValue = OUTPUT_HEADLINE
+
+    if (isRunning) {
+      outputValue = 'Running...'
+    } else if (output) {
+      outputValue = JSON.stringify(output, null, 2)
+    } else if (error) {
+      outputValue = error
+    }
+
     return (
       <>
         {showEditor ? (
@@ -98,7 +109,8 @@ export default class Editor extends PureComponent<Props, State> {
                 options={{
                   automaticLayout: true,
                   lineNumbers: 'off',
-                  minimap: { enabled: false }
+                  minimap: { enabled: false },
+                  fontSize: 11
                 }}
               />
             </div>
@@ -107,13 +119,7 @@ export default class Editor extends PureComponent<Props, State> {
                 height="600"
                 language="typescript"
                 theme="vs-dark"
-                value={
-                  isRunning
-                    ? 'Running....'
-                    : output
-                    ? JSON.stringify(output, null, 2)
-                    : OUTPUT_HEADLINE
-                }
+                value={outputValue}
                 options={{
                   readOnly: true,
                   automaticLayout: true,
