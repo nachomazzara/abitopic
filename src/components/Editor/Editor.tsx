@@ -108,8 +108,11 @@ export default class Editor extends PureComponent<Props, State> {
                 language="typescript"
                 theme="vs-dark"
                 value={
-                  OUTPUT_HEADLINE +
-                  (output ? JSON.stringify(output, null, 2) : '')
+                  isRunning
+                    ? 'Running....'
+                    : output
+                    ? JSON.stringify(output, null, 2)
+                    : OUTPUT_HEADLINE
                 }
                 options={{
                   readOnly: true,
