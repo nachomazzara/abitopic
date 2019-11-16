@@ -34,11 +34,12 @@ export default class Editor extends PureComponent<Props, State> {
   }
 
   editorWillMount = (monaco: typeof monacoEditor) => {
-    monaco.editor.createModel(
-      editorTypes,
-      'typescript',
-      monacoEditor.Uri.parse('file://global.d.ts')
-    )
+    const uri = monacoEditor.Uri.parse('file://global.d.ts')
+    const existingModel = monaco.editor.getModel(uri)
+
+    if (!existingModel) {
+      monaco.editor.createModel(editorTypes, 'typescript', uri)
+    }
   }
 
   executeCode = async () => {
