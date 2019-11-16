@@ -81,7 +81,8 @@
   ],
   "devDependencies": {
     "monaco-editor-webpack-plugin": "^1.7.0",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "raw-loader": "^3.1.0"
   },
   "jest": {
     "collectCoverageFrom": [
