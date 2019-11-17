@@ -51,7 +51,6 @@ export default class Editor extends PureComponent<Props, State> {
     if (model && model.getModeId() === 'typescript') {
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
         editor.trigger('format', 'editor.action.formatDocument', null)
-        this.executeCode()
       })
     }
   }
