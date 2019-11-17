@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 
 import { getWeb3Instance } from '../../lib/web3'
-import { findABIForProxy, sanitizeABI, getChains } from '../../lib/utils'
+import { findABIForProxy, sanitizeABI } from '../../lib/utils'
 import {
   saveLastUsedContract,
   getLastUsedContract,
   LastUsedContract
 } from '../../lib/localStorage'
+import Editor from '../../components/Editor' // @TODO: components as paths
 import Loader from '../../components/Loader' // @TODO: components as paths
 import Function from '../../components/Function' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
@@ -26,7 +27,7 @@ export default class Contract extends Component<Props, State> {
   textarea: { [key: string]: any } = {}
   web3 = getWeb3Instance()
 
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props)
 
     const { address, abi, isProxy } = this.getInitParams()
@@ -267,8 +268,10 @@ export default class Contract extends Component<Props, State> {
 
   renderFunctions = (functions: Func[]) => {
     const { contract, blockNumber } = this.state
+    const { index } = this.props
     return (
       <div className="results">
+        <Editor contract={contract} index={index} />
         {functions.length > 0
           ? functions.map((func, index) => (
               <Function
@@ -329,7 +332,6 @@ export default class Contract extends Component<Props, State> {
           .slice(1, -1)
       : ''
 
-    const chains = getChains()
     return (
       <>
         {isLoading && <Loader />}

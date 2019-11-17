@@ -94,3 +94,7 @@ export function getNetworkNameById(id: number): string {
   const chain = getChains().find(chain => chain.id === id)
   return chain ? chain.value : ''
 }
+
+export function isOS() {
+  return navigator.userAgent.match(/ipad|iphone/i)
+}

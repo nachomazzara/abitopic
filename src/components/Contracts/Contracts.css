@@ -40,7 +40,7 @@
   width: 100%;
   text-align: right;
   background: #1f1f1f;
-  height: 60px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -48,7 +48,7 @@
 
 .App .footer a {
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   text-decoration: none;
   margin-right: 20px;
 }
