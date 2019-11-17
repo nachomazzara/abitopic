@@ -43,6 +43,19 @@ export default class Editor extends PureComponent<Props, State> {
     )
   }
 
+  editorDidMount = (
+    editor: monacoEditor.editor.IStandaloneCodeEditor,
+    monaco: typeof monacoEditor
+  ) => {
+    const model = editor.getModel()
+    if (model && model.getModeId() === 'typescript') {
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+        editor.trigger('format', 'editor.action.formatDocument', null)
+        this.executeCode()
+      })
+    }
+  }
+
   executeCode = async () => {
     const { code } = this.state
     const { contract } = this.props // should be available when evaluating the script
@@ -104,6 +117,7 @@ export default class Editor extends PureComponent<Props, State> {
                 value={code}
                 onChange={this.handleCodeChange}
                 editorWillMount={this.editorWillMount}
+                editorDidMount={this.editorDidMount}
                 options={{
                   automaticLayout: true,
                   lineNumbers: 'off',
