@@ -6,6 +6,7 @@ export type State = {
   error: string | null
   isRunning: boolean
   showEditor: boolean
+  copyText: string
 }
 
 export type Props = {

@@ -8,6 +8,8 @@ import editorTypes from '!!raw-loader!./editorTypes.d.ts'
 import defaultScript from '!!raw-loader!./defaultScript.js'
 
 import { saveLastUsedCode, getLastUsedCode } from '../../lib/localStorage'
+import { isOS } from '../../lib/utils'
+
 import { Props, State } from './types'
 
 import './Editor.css'
@@ -15,6 +17,9 @@ import './Editor.css'
 export const OUTPUT_HEADLINE = '/***** Output *****/\n'
 
 export default class Editor extends PureComponent<Props, State> {
+  textarea!: HTMLTextAreaElement
+  textTimeout: number = 0
+
   constructor(props: Props) {
     super(props)
 
@@ -23,17 +28,9 @@ export default class Editor extends PureComponent<Props, State> {
       showEditor: false,
       isRunning: false,
       output: null,
-      error: null
+      error: null,
+      copyText: 'Copy'
     }
-  }
-
-  handleToggleEditor = () => {
-    this.setState({ showEditor: !this.state.showEditor })
-  }
-
-  handleCodeChange = (newValue: string) => {
-    saveLastUsedCode(newValue, this.props.index)
-    this.setState({ code: newValue })
   }
 
   editorWillMount = (monaco: typeof monacoEditor) => {
@@ -50,14 +47,20 @@ export default class Editor extends PureComponent<Props, State> {
     const model = editor.getModel()
     if (model && model.getModeId() === 'typescript') {
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+        saveLastUsedCode(this.state.code, this.props.index)
         editor.trigger('format', 'editor.action.formatDocument', null)
       })
     }
   }
 
-  executeCode = async () => {
+  componentWillUnmount() {
+    window.clearTimeout(this.textTimeout)
+  }
+
+  handleExecuteCode = async () => {
     const { code } = this.state
-    const { contract } = this.props // should be available when evaluating the script
+    const { index, contract } = this.props // contract should be available when evaluating the script
+    saveLastUsedCode(code, index)
 
     let output
     try {
@@ -69,12 +72,45 @@ export default class Editor extends PureComponent<Props, State> {
     }
   }
 
-  resetCode = () => {
+  handleToggleEditor = () => {
+    this.setState({ showEditor: !this.state.showEditor })
+  }
+
+  handleCodeChange = (newValue: string) => {
+    this.setState({ code: newValue })
+  }
+
+  handleResetCode = () => {
     this.handleCodeChange(defaultScript)
   }
 
+  handleCopy = () => {
+    this.setState({ copyText: 'Copied' })
+    if (isOS()) {
+      const range = document.createRange()
+      range.selectNodeContents(this.textarea)
+      const selection = window.getSelection()
+      if (selection) {
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
+      this.textarea.setSelectionRange(0, 999999)
+    } else {
+      this.textarea.select()
+    }
+    document.execCommand('copy')
+    this.textTimeout = window.setTimeout(
+      () => this.setState({ copyText: 'Copy' }),
+      1000
+    )
+  }
+
+  handleClearOutput = () => {
+    this.setState({ output: null })
+  }
+
   render() {
-    const { code, output, isRunning, showEditor, error } = this.state
+    const { code, output, isRunning, showEditor, error, copyText } = this.state
 
     let outputValue = OUTPUT_HEADLINE
 
@@ -97,13 +133,13 @@ export default class Editor extends PureComponent<Props, State> {
                     <i className="icon hide" />
                     {'Hide'}
                   </button>
-                  <button onClick={this.executeCode} title="Run">
+                  <button onClick={this.handleExecuteCode} title="Run">
                     <i className="icon run" />
                     {'Run'}
                   </button>
                 </div>
                 <div className="col right">
-                  <button onClick={this.resetCode} title="Reset">
+                  <button onClick={this.handleResetCode} title="Reset">
                     <i className="icon reset" />
                     {'Reset'}
                   </button>
@@ -126,6 +162,20 @@ export default class Editor extends PureComponent<Props, State> {
               />
             </div>
             <div className="output-wrapper">
+              <div className="actions">
+                <div className="col left">
+                  <button onClick={this.handleCopy} title="Copy">
+                    <i className="icon copy" />
+                    {copyText}
+                  </button>
+                </div>
+                <div className="col right">
+                  <button onClick={this.handleClearOutput} title="Clear">
+                    <i className="icon reset" />
+                    {'Clear'}
+                  </button>
+                </div>
+              </div>
               <MonacoEditor
                 height="600"
                 language="typescript"
@@ -149,6 +199,17 @@ export default class Editor extends PureComponent<Props, State> {
             </button>
           </div>
         )}
+        <textarea
+          readOnly={false}
+          className="no-visible"
+          ref={textarea => {
+            if (textarea) {
+              this.textarea = textarea
+            }
+          }}
+          defaultValue={outputValue}
+          value={outputValue}
+        />
       </>
     )
   }
