@@ -8,11 +8,11 @@ import editorTypes from '!!raw-loader!./editorTypes.d.ts'
 import defaultScript from '!!raw-loader!./defaultScript.js'
 
 import { saveLastUsedCode, getLastUsedCode } from '../../lib/localStorage'
-import { isOS } from '../../lib/utils'
-
+import { typeContractMethods, isOS } from '../../lib/utils'
 import { Props, State } from './types'
 
 import './Editor.css'
+import { getWeb3Instance } from '../../lib/web3'
 
 export const OUTPUT_HEADLINE = '/***** Output *****/\n'
 
@@ -35,7 +35,7 @@ export default class Editor extends PureComponent<Props, State> {
 
   editorWillMount = (monaco: typeof monacoEditor) => {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      editorTypes,
+      typeContractMethods(editorTypes, this.props.contract!),
       'index.d.ts'
     )
   }
@@ -60,13 +60,45 @@ export default class Editor extends PureComponent<Props, State> {
   handleExecuteCode = async () => {
     const { code } = this.state
     const { index, contract } = this.props // contract should be available when evaluating the script
+    const web3 = getWeb3Instance()
+
     saveLastUsedCode(code, index)
 
-    let output
+    let output: string
+
+    const setState = (...values: any) => {
+      if (output === undefined) {
+        output = ''
+      }
+
+      if (values.length > 1) {
+        values.forEach(
+          (value: any) => (output += JSON.stringify(value, null, 2) + '\n')
+        )
+      } else {
+        output += JSON.stringify(values[0], null, 2) + '\n'
+      }
+
+      this.setState({ output })
+    }
+
     try {
       this.setState({ isRunning: true, output: null, error: null })
-      output = await eval(`${code}\nmain()`)
-      this.setState({ output, isRunning: false })
+      setState(
+        await eval(`
+       (function(){
+          const console = {}
+
+          console.log = function() {
+            setState(...arguments)
+          }
+          ${code}
+          return main()
+        })()
+      `)
+      )
+
+      this.setState({ isRunning: false })
     } catch (e) {
       this.setState({ error: e.stack, isRunning: false })
     }
@@ -106,7 +138,7 @@ export default class Editor extends PureComponent<Props, State> {
   }
 
   handleClearOutput = () => {
-    this.setState({ output: null })
+    this.setState({ output: null, error: null })
   }
 
   render() {
@@ -117,7 +149,7 @@ export default class Editor extends PureComponent<Props, State> {
     if (isRunning) {
       outputValue = 'Running...'
     } else if (output) {
-      outputValue = JSON.stringify(output, null, 2)
+      outputValue = output
     } else if (error) {
       outputValue = error
     }
@@ -200,14 +232,13 @@ export default class Editor extends PureComponent<Props, State> {
           </div>
         )}
         <textarea
-          readOnly={false}
+          readOnly={true}
           className="no-visible"
           ref={textarea => {
             if (textarea) {
               this.textarea = textarea
             }
           }}
-          defaultValue={outputValue}
           value={outputValue}
         />
       </>

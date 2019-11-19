@@ -116,7 +116,7 @@
   width: 0;
   height: 0;
   left: -5px;
-  bottom: 0;
+  bottom: -1px;
   border-width: 4px;
   border-style: solid;
   border-left-color: transparent;
