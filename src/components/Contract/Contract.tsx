@@ -43,6 +43,7 @@ export default class Contract extends Component<Props, State> {
       isLoading: false,
       search: '',
       blockNumber: 'latest',
+      contractName: '',
       address,
       isProxy
     }
@@ -108,13 +109,29 @@ export default class Contract extends Component<Props, State> {
       const res = await fetch(`${this.props.apiNetwork}${address}`)
       const abi = await res.json()
       if (abi.result === 'Contract source code not verified') {
-        this.setState({ error: abi.result })
+        this.setState({ error: abi.result, contractName: '' })
       } else {
         this.decode(abi.result)
       }
     }
 
     this.saveAction({})
+  }
+
+  setContractName = async () => {
+    const { contract } = this.state
+    try {
+      const name = await contract!.methods.name().call()
+
+      if (name) {
+        document.title = name
+        this.setState({ contractName: name })
+      } else {
+        this.setState({ contractName: '' })
+      }
+    } catch (e) {
+      this.setState({ contractName: '' })
+    }
   }
 
   getABIforProxy = async () => {
@@ -153,10 +170,13 @@ export default class Contract extends Component<Props, State> {
     } else {
       await this.getABI(address)
     }
+
     this.setState({
       isLoading: false
     })
     this.saveAction({ address, isProxy })
+
+    await this.setContractName()
   }
 
   decode = (abi: any) => {
@@ -308,6 +328,7 @@ export default class Contract extends Component<Props, State> {
   saveAction = (options: Partial<LastUsedContract>) => {
     const { address, abi, isProxy } = this.state
     const { index } = this.props
+
     saveLastUsedContract(
       Object.assign({ address, abi, isProxy }, options),
       index
@@ -324,7 +345,8 @@ export default class Contract extends Component<Props, State> {
       isProxy,
       isLoading,
       search,
-      blockNumber
+      blockNumber,
+      contractName
     } = this.state
     const abiStr = abi
       ? JSON.stringify(abi)
@@ -337,7 +359,10 @@ export default class Contract extends Component<Props, State> {
         {isLoading && <Loader />}
         <div className="wrapper">
           <div className="address-wrapper">
-            <h3>{'Contract Address'}</h3>
+            <h3>
+              {'Contract Address'}{' '}
+              <b>{contractName ? `(${contractName})` : ''}</b>
+            </h3>
             <div className="input-wrapper">
               <input
                 placeholder="0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2"

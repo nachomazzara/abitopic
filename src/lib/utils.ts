@@ -1,4 +1,5 @@
 import { getWeb3Instance } from './web3'
+import { Contract } from 'web3-eth-contract/types'
 
 export const TOPICS_FOR_PROXYS = [
   {
@@ -97,4 +98,40 @@ export function getNetworkNameById(id: number): string {
 
 export function isOS() {
   return navigator.userAgent.match(/ipad|iphone/i)
+}
+
+// Replace `methods: any` to `{ methodName: (params: types) Promise<any>}`
+export function typeContractMethods(editorTypes: string, contract: Contract) {
+  const methodTypes = `methods: {
+    ${contract!.options.jsonInterface.map((method: any) => {
+    let inputs = ''
+
+    method.inputs.forEach((input: any, index: number) => {
+      if (index > 0) {
+        inputs += ', '
+      }
+
+      inputs += input.name
+        ? input.name
+        : method.inputs.length > 1
+          ? `${input.type}_${index}`
+          : input.type
+
+      if (input.type.indexOf('int') !== -1) {
+        inputs += ': number'
+      } else {
+        inputs += ': string'
+      }
+
+      if (input.type.indexOf('[]') !== -1) {
+        inputs += `[]`
+      }
+    })
+
+    return `${method.name}: (${inputs}): Promise<any>`
+  })
+      .join('\n')}
+  }`
+
+  return editorTypes.replace('methods: any', methodTypes)
 }

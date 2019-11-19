@@ -4,6 +4,10 @@
   align-items: center;
 }
 
+.App .address-wrapper b {
+  font-weight: 400;
+}
+
 .App .address-wrapper .input-wrapper {
   width: 100%;
 }

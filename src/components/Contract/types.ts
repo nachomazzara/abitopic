@@ -17,6 +17,7 @@ export type State = {
   search: string
   blockNumber: string
   isLoading: boolean
+  contractName: string
 }
 
 export type Props = {
