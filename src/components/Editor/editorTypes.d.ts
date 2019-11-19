@@ -1969,7 +1969,6 @@ declare interface Contract {
   options: Options
   clone(): Contract
   deploy(options: DeployOptions): ContractSendMethod
-  methods: any
   once(event: string, callback: (error: Error, event: EventData) => void): void
   once(
     event: string,
@@ -1988,6 +1987,8 @@ declare interface Contract {
     event: string,
     callback: (error: Error, event: EventData) => void
   ): Promise<EventData[]>
+
+  contractMethods: any
 }
 
 declare var web3: Web3

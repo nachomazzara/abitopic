@@ -133,5 +133,5 @@ export function typeContractMethods(editorTypes: string, contract: Contract) {
       .join('\n')}
   }`
 
-  return editorTypes.replace('methods: any', methodTypes)
+  return editorTypes.replace('contractMethods: any', methodTypes)
 }
