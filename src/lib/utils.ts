@@ -128,7 +128,7 @@ export function typeContractMethods(editorTypes: string, contract: Contract) {
       }
     })
 
-    return `${method.name}: (${inputs}): Promise<any>`
+    return `${method.name}: (${inputs}) => any`
   })
       .join('\n')}
   }`
