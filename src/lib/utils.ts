@@ -128,10 +128,10 @@ export function typeContractMethods(editorTypes: string, contract: Contract) {
       }
     })
 
-    return `${method.name}: (${inputs}): Promise<any>`
+    return `${method.name}: (${inputs}) => any`
   })
       .join('\n')}
   }`
 
-  return editorTypes.replace('methods: any', methodTypes)
+  return editorTypes.replace('contractMethods: any', methodTypes)
 }
