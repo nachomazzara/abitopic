@@ -1,6 +1,8 @@
 import { getWeb3Instance } from './web3'
 import { Contract } from 'web3-eth-contract/types'
 
+export const ETHERSCAN_API_KEY = 'BPS6G2415Z1J5KV85FP76QFD3MXM1U39BU'
+
 export const TOPICS_FOR_PROXYS = [
   {
     topic: '0xe74baeef5988edac1159d9177ca52f0f3d68f624a1996f77467eb3ebfb316537',
@@ -23,7 +25,7 @@ export async function findABIForProxy(
   const web3 = getWeb3Instance()
   const api = `https://api${
     network !== 'mainnet' ? `-${network}` : ''
-    }.etherscan.io/api?module=logs&&apikey=BPS6G2415Z1J5KV85FP76QFD3MXM1U39BU&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
+    }.etherscan.io/api?module=logs&&apikey=${ETHERSCAN_API_KEY}&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
 
   let address
   for (let { topic, indexed, dataIndex } of TOPICS_FOR_PROXYS) {
@@ -62,7 +64,7 @@ async function getAddressByStorageSlot(
   const res = await fetch(
     `https://api${
     network !== 'mainnet' ? `-${network}` : ''
-    }.etherscan.io/api?module=proxy&action=eth_getStorageAt&apikey=BPS6G2415Z1J5KV85FP76QFD3MXM1U39BU&address=${proxyAddress}&position=0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3&tag=latest`
+    }.etherscan.io/api?module=proxy&action=eth_getStorageAt&apikey=${ETHERSCAN_API_KEY}&address=${proxyAddress}&position=0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3&tag=latest`
   )
   const data = (await res.json()).result
 

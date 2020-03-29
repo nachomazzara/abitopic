@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Dropdown, { Option } from 'react-dropdown'
 
-import { getChains } from '../../lib/utils'
+import { getChains, ETHERSCAN_API_KEY } from '../../lib/utils'
 import Contract from '../../components/Contract'
 import { State } from './types'
 
@@ -19,7 +19,7 @@ export default class Contracts extends Component<any, State> {
     this.state = {
       apiNetwork: `https://api${
         network !== 'mainnet' ? `-${network}` : ''
-      }.etherscan.io/api?module=contract&action=getabi&address=`,
+      }.etherscan.io/api?apikey=${ETHERSCAN_API_KEY}&module=contract&action=getabi&address=`,
       contracts: 1,
       network
     }
@@ -48,7 +48,7 @@ export default class Contracts extends Component<any, State> {
     this.setState({
       apiNetwork: `https://api${
         newNetwork !== 'mainnet' ? `-${newNetwork}` : ''
-      }.etherscan.io/api?module=contract&action=getabi&address=`,
+      }.etherscan.io/api?apikey=${ETHERSCAN_API_KEY}&module=contract&action=getabi&address=`,
       network: newNetwork
     })
   }
