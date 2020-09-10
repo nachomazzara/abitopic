@@ -65,11 +65,11 @@ export default class Transaction extends PureComponent<
         value
       }
 
-      if (!(await this.isSameNetwork())) {
-        throw new Error(
-          `Your wallet is not on ${this.network}. Please, switch your wallet to ${this.network} if you want to interact with the contract.`
-        )
-      }
+      // if (!(await this.isSameNetwork())) {
+      //   throw new Error(
+      //     `Your wallet is not on ${this.network}. Please, switch your wallet to ${this.network} if you want to interact with the contract.`
+      //   )
+      // }
 
       const res = await (isConstant
         ? web3.eth.call(transaction, blockNumber)
