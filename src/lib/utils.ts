@@ -18,13 +18,14 @@ export const TOPICS_FOR_PROXYS = [
   }
 ]
 
+export const CUSTOM_NETWORK = 'custom'
+
 export async function findABIForProxy(
   network: string,
   proxyAddress: string
 ): Promise<string | undefined> {
   const web3 = getWeb3Instance()
-  const api = `https://api${
-    network !== 'mainnet' ? `-${network}` : ''
+  const api = `https://api${network !== 'mainnet' ? `-${network}` : ''
     }.etherscan.io/api?module=logs&&apikey=${ETHERSCAN_API_KEY}&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
 
   let address
@@ -62,8 +63,7 @@ async function getAddressByStorageSlot(
   proxyAddress: string
 ): Promise<string | undefined> {
   const res = await fetch(
-    `https://api${
-    network !== 'mainnet' ? `-${network}` : ''
+    `https://api${network !== 'mainnet' ? `-${network}` : ''
     }.etherscan.io/api?module=proxy&action=eth_getStorageAt&apikey=${ETHERSCAN_API_KEY}&address=${proxyAddress}&position=0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3&tag=latest`
   )
   const data = (await res.json()).result
@@ -93,7 +93,8 @@ export function getChains() {
     { value: 'ropsten', label: 'Ropsten Testnet', id: 3 },
     { value: 'kovan', label: 'Kovan Testnet', id: 42 },
     { value: 'rinkeby', label: 'Rinkeby Testnet', id: 4 },
-    { value: 'goerli', label: 'Goerli Testnet', id: 5 }
+    { value: 'goerli', label: 'Goerli Testnet', id: 5 },
+    { value: CUSTOM_NETWORK, label: 'Custom Network', id: -1 }
   ]
 }
 

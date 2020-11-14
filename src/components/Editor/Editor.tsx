@@ -60,7 +60,7 @@ export default class Editor extends PureComponent<Props, State> {
   handleExecuteCode = async () => {
     const { code } = this.state
     const { index, contract } = this.props // contract should be available when evaluating the script
-    const web3 = getWeb3Instance()
+    const web3 = getWeb3Instance() // web3 should be available when evaluating the script
 
     saveLastUsedCode(code, index)
 
