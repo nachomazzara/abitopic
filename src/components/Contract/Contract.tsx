@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { Contract as Web3Contract } from 'web3-eth-contract'
 import { getWeb3Instance } from '../../lib/web3'
 import { findABIForProxy, sanitizeABI } from '../../lib/utils'
 import {
@@ -229,10 +229,10 @@ export default class Contract extends Component<Props, State> {
               name,
               selector,
               original,
-              isConstant: method.constant,
+              isConstant: method.constant || method.stateMutability === 'pure' || method.stateMutability === 'view',
               inputs: method.inputs,
               outputs: method.outputs,
-              isPayable: method.payable
+              isPayable: method.payable || method.stateMutability === 'payable'
             })
             break
           }
@@ -244,7 +244,7 @@ export default class Contract extends Component<Props, State> {
       const contract = new this.web3.eth.Contract(
         JSON.parse(abi),
         this.state.address
-      )
+      ) as any // Types are getting crazy. Not gonna spend more time on this.
 
       this.setState({
         abi,

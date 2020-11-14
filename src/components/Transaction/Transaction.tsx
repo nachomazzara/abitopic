@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react'
-import { TransactionReceipt, TransactionConfig } from 'web3-core/types'
+import { TransactionReceipt } from 'web3-core/types'
 
 import { TransactionProps, TransactionState, TxData } from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
 import { getWeb3Instance, getDefaultAccount } from '../../lib/web3'
-import { getNetworkNameById } from '../../lib/utils'
+import { getNetworkNameById, CUSTOM_NETWORK } from '../../lib/utils'
 import './Transaction.css'
 
 export default class Transaction extends PureComponent<
@@ -58,7 +58,7 @@ export default class Transaction extends PureComponent<
       const { data, value } = this.getData(event)
       const from = await getDefaultAccount()
 
-      const transaction: TransactionConfig = {
+      const transaction = {
         to: contract.options.address,
         from,
         data,
@@ -97,7 +97,7 @@ export default class Transaction extends PureComponent<
 
   isSameNetwork = async (): Promise<boolean> => {
     const netId = await this.web3.eth.net.getId()
-    return this.network === getNetworkNameById(netId)
+    return this.network === CUSTOM_NETWORK || this.network === getNetworkNameById(netId)
   }
 
   getCall = (data: string): string => {

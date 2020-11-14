@@ -1,8 +1,7 @@
-import Web3 from 'web3'
-import { HttpProvider } from 'web3-providers-http/types'
+const Web3 = require('web3')
 
 export interface EthereumWindow {
-  ethereum?: HttpProvider & {
+  ethereum?: {
     enable?: () => Promise<string[]>
 
     autoRefreshOnNetworkChange: boolean
@@ -16,7 +15,7 @@ if (ethereum) {
   ethereum.autoRefreshOnNetworkChange = false
 }
 
-let web3: Web3
+let web3Instance: Web3
 let chainId: number
 
 export function getWeb3Instance(): Web3 {
@@ -24,15 +23,15 @@ export function getWeb3Instance(): Web3 {
 
   const networkChanged = ethereum && ethereum.networkVersion !== chainId
 
-  if (!web3 || networkChanged) {
+  if (!web3Instance || networkChanged) {
     chainId = ethereum ? ethereum.networkVersion : 0
-    web3 = new Web3(
+    web3Instance = new Web3(
       ethereum
         ? ethereum
-        : new Web3.providers.HttpProvider('https://localhost:8545')
+        : 'https://localhost:8545'
     )
   }
-  return web3
+  return web3Instance
 }
 
 export async function getDefaultAccount(): Promise<string | undefined> {

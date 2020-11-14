@@ -1,4 +1,4 @@
-import { Contract } from 'web3-eth-contract/types'
+import { Contract } from 'web3-eth-contract'
 
 import { Event as EventType } from '../../components/Event/types' // @TODO: components as paths
 import { Func } from '../../components/Function/types' // @TODO: components as paths
