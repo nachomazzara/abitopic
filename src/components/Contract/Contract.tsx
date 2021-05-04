@@ -111,7 +111,7 @@ export default class Contract extends Component<Props, State> {
         const res = await fetch(`${this.props.apiNetwork}${address}`)
         abi = await res.json()
       } catch (e) {
-        // Do nothing
+          return this.setState({ error: 'Error fetching the abi', contractName: '' })
       }
 
       if (abi.result === 'Contract source code not verified') {
