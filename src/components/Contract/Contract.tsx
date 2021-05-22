@@ -83,8 +83,8 @@ export default class Contract extends Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.network !== this.props.network) {
-      this.handleNetworkChange(nextProps.network)
+    if (nextProps.network !== this.props.network || nextProps.apiNetwork !== this.props.apiNetwork) {
+      this.handleNetworkChange(nextProps.network, nextProps.apiNetwork)
     }
   }
 
@@ -104,11 +104,11 @@ export default class Contract extends Component<Props, State> {
     this.saveAction({ address: e.currentTarget.value })
   }
 
-  getABI = async (address: string) => {
+  getABI = async (address: string, api?: string) => {
     if (address) {
       let abi
       try {
-        const res = await fetch(`${this.props.apiNetwork}${address}`)
+        const res = await fetch(`${api ? api : this.props.apiNetwork}${address}`)
         abi = await res.json()
       } catch (e) {
           return this.setState({ error: 'Error fetching the abi', contractName: '' })
@@ -149,7 +149,7 @@ export default class Contract extends Component<Props, State> {
     this.saveAction({ isProxy: !isProxy })
   }
 
-  getAddress = async (address: string, isProxy: boolean, network?: string) => {
+  getAddress = async (address: string, isProxy: boolean, network?: string, api?: string) => {
     this.setState({
       isLoading: true
     })
@@ -160,7 +160,7 @@ export default class Contract extends Component<Props, State> {
         address
       )
       if (implementationAddress) {
-        await this.getABI(implementationAddress)
+        await this.getABI(implementationAddress, api)
       } else {
         this.setState({
           error: (
@@ -174,7 +174,7 @@ export default class Contract extends Component<Props, State> {
         })
       }
     } else {
-      await this.getABI(address)
+      await this.getABI(address, api)
     }
 
     this.setState({
@@ -267,7 +267,7 @@ export default class Contract extends Component<Props, State> {
     document.execCommand('copy')
   }
 
-  handleNetworkChange = (network: string) => {
+  handleNetworkChange = (network: string, api: string) => {
     const { address, isProxy } = this.state
 
     this.setState({
@@ -275,7 +275,7 @@ export default class Contract extends Component<Props, State> {
       error: null
     })
 
-    this.getAddress(address, isProxy, network)
+    this.getAddress(address, isProxy, network, api)
   }
 
   onChangeTab = (activeTab: string) => {
