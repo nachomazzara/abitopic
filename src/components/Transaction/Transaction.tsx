@@ -4,7 +4,7 @@ import { TransactionReceipt } from 'web3-core/types'
 import { TransactionProps, TransactionState, TxData } from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
 import { getWeb3Instance, getDefaultAccount } from '../../lib/web3'
-import { getNetworkNameById, CUSTOM_NETWORK } from '../../lib/utils'
+import { getTxLink, getNetworkNameById, CUSTOM_NETWORK } from '../../lib/utils'
 import './Transaction.css'
 
 export default class Transaction extends PureComponent<
@@ -120,9 +120,7 @@ export default class Transaction extends PureComponent<
   }
 
   getLink = (receipt: TransactionReceipt) => {
-    return `https://${
-      this.network !== 'mainnet' ? `${this.network}.` : ''
-    }etherscan.io/tx/${receipt.transactionHash}`
+    return `${this.network}/${receipt.transactionHash}`
   }
 
   getData = (event: React.FormEvent<any>): TxData => {

@@ -85,7 +85,29 @@ export function getAPI(network: string): string {
   }
 
   if (isMaticChain(network)) {
-    return ''
+    return `https://api${network === CHAINS.MATIC_MUMBAI.value ? '-testnet' : ''
+      }.polygonscan.com/api`
+  }
+
+  console.warn(`Could not find any API for the chain: ${network}`)
+
+  return ''
+}
+
+export function getTxLink(network: string): string {
+  if (isEthereumChain(network)) {
+    return `https://${network !== 'mainnet' ? `${network}` : ''
+      }.etherscan.io/tx`
+  }
+
+  if (isBSCChain(network)) {
+    return `https://${network === CHAINS.BSC_TESTNET.value ? 'testnet' : ''
+      }.bscscan.com/tx`
+  }
+
+  if (isMaticChain(network)) {
+    return `https://${network === CHAINS.MATIC_MUMBAI.value ? 'testnet' : ''
+      }.polygonscan.com/tx`
   }
 
   console.warn(`Could not find any API for the chain: ${network}`)
