@@ -120,7 +120,7 @@ export default class Transaction extends PureComponent<
   }
 
   getLink = (receipt: TransactionReceipt) => {
-    return `${this.network}/${receipt.transactionHash}`
+    return `${getTxLink(this.network)}/${receipt.transactionHash}`
   }
 
   getData = (event: React.FormEvent<any>): TxData => {
