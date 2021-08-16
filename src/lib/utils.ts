@@ -106,7 +106,7 @@ export function getTxLink(network: string): string {
   }
 
   if (isMaticChain(network)) {
-    return `https://${network === CHAINS.MATIC_MUMBAI.value ? 'testnet' : ''
+    return `https://${network === CHAINS.MATIC_MUMBAI.value ? 'mumbai' : ''
       }.polygonscan.com/tx`
   }
 
