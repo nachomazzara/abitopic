@@ -96,18 +96,18 @@ export function getAPI(network: string): string {
 
 export function getTxLink(network: string): string {
   if (isEthereumChain(network)) {
-    return `https://${network !== 'mainnet' ? `${network}` : ''
-      }.etherscan.io/tx`
+    return `https://${network !== 'mainnet' ? `${network}.` : ''
+      }etherscan.io/tx`
   }
 
   if (isBSCChain(network)) {
-    return `https://${network === CHAINS.BSC_TESTNET.value ? 'testnet' : ''
-      }.bscscan.com/tx`
+    return `https://${network === CHAINS.BSC_TESTNET.value ? 'testnet.' : ''
+      }bscscan.com/tx`
   }
 
   if (isMaticChain(network)) {
-    return `https://${network === CHAINS.MATIC_MUMBAI.value ? 'mumbai' : ''
-      }.polygonscan.com/tx`
+    return `https://${network === CHAINS.MATIC_MUMBAI.value ? 'mumbai.' : ''
+      }polygonscan.com/tx`
   }
 
   console.warn(`Could not find any API for the chain: ${network}`)
