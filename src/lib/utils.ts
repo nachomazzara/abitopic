@@ -128,7 +128,7 @@ export async function findABIForProxy(
   for (let { topic, indexed, dataIndex } of TOPICS_FOR_PROXYS) {
     const res = await fetch(`${api}${topic}`)
     const data = await res.json()
-    if (data.result.length > 0) {
+    if (data.result.length > 0 && Number(data.status) !== 0) {
       const event = data.result.pop()
       address = indexed
         ? getAddressByTopic(event, indexed!)
