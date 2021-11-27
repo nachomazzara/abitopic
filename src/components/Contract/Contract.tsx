@@ -299,9 +299,9 @@ export default class Contract extends Component<Props, State> {
       <div className="results">
         <Editor contract={contract} index={index} />
         {functions.length > 0
-          ? functions.map((func, index) => (
+          ? functions.map((func) => (
               <Function
-                key={index}
+                key={func.name}
                 func={func}
                 contract={contract!}
                 blockNumber={blockNumber}

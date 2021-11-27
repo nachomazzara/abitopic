@@ -14,10 +14,12 @@ export type TransactionProps = {
 export type TransactionState = {
   data: string
   link: string
+  showMultisig: boolean
   error: string | null
 }
 
 export type TxData = {
   data: string
   value: string
+  multisigAddress: string
 }

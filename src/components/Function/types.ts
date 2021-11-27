@@ -17,3 +17,7 @@ export type FunctionProps = {
   contract: Contract
   blockNumber: string
 }
+
+export type FunctionState = {
+  pendingTxIds: number[]
+}
