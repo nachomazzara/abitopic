@@ -1,0 +1,28 @@
+.MultisigTxInfoModal p {
+  font-size: 14px;
+  overflow: hidden;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 3px;
+  background: #f1f1f1;
+  margin-bottom: 15px;
+  overflow-wrap: anywhere;
+  text-align: left;
+  max-height: 100px;
+  overflow-y: scroll;
+}
+
+.MultisigTxInfoModal .modal-body button {
+  cursor: pointer;
+  padding: 8px 25px;
+  font-size: 12px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  outline: none;
+  color: var(--text);
+  background: var(--monaco);
+  font-style: italic;
+  border: 1px solid black;
+}

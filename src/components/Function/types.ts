@@ -19,5 +19,14 @@ export type FunctionProps = {
 }
 
 export type FunctionState = {
-  pendingTxIds: number[]
+  pendingTxIds: mulitisigTx[]
+  currentMultisigTx: mulitisigTx | null
+  isModalOpen: boolean
+}
+
+export type mulitisigTx = {
+  id: number
+  to: string
+  value: number
+  data: string
 }

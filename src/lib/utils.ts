@@ -194,7 +194,7 @@ export function getNetworkNameById(id: number): string {
   return chain ? chain.value : ''
 }
 
-export function isOS() {
+export function isIOS() {
   return navigator.userAgent.match(/ipad|iphone/i)
 }
 

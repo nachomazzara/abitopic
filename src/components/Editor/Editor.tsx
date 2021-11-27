@@ -8,7 +8,7 @@ import editorTypes from '!!raw-loader!./editorTypes.d.ts'
 import defaultScript from '!!raw-loader!./defaultScript.js'
 
 import { saveLastUsedCode, getLastUsedCode } from '../../lib/localStorage'
-import { typeContractMethods, isOS } from '../../lib/utils'
+import { typeContractMethods, isIOS } from '../../lib/utils'
 import { Props, State } from './types'
 
 import './Editor.css'
@@ -118,7 +118,7 @@ export default class Editor extends PureComponent<Props, State> {
 
   handleCopy = () => {
     this.setState({ copyText: 'Copied' })
-    if (isOS()) {
+    if (isIOS()) {
       const range = document.createRange()
       range.selectNodeContents(this.textarea)
       const selection = window.getSelection()
