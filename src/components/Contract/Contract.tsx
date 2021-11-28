@@ -83,7 +83,10 @@ export default class Contract extends Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.network !== this.props.network || nextProps.apiNetwork !== this.props.apiNetwork) {
+    if (
+      nextProps.network !== this.props.network ||
+      nextProps.apiNetwork !== this.props.apiNetwork
+    ) {
       this.handleNetworkChange(nextProps.network, nextProps.apiNetwork)
     }
   }
@@ -108,10 +111,15 @@ export default class Contract extends Component<Props, State> {
     if (address) {
       let abi
       try {
-        const res = await fetch(`${api ? api : this.props.apiNetwork}${address}`)
+        const res = await fetch(
+          `${api ? api : this.props.apiNetwork}${address}`
+        )
         abi = await res.json()
       } catch (e) {
-          return this.setState({ error: 'Error fetching the abi', contractName: '' })
+        return this.setState({
+          error: 'Error fetching the abi',
+          contractName: ''
+        })
       }
 
       if (abi.result === 'Contract source code not verified') {
@@ -149,7 +157,12 @@ export default class Contract extends Component<Props, State> {
     this.saveAction({ isProxy: !isProxy })
   }
 
-  getAddress = async (address: string, isProxy: boolean, network?: string, api?: string) => {
+  getAddress = async (
+    address: string,
+    isProxy: boolean,
+    network?: string,
+    api?: string
+  ) => {
     this.setState({
       isLoading: true
     })
@@ -229,7 +242,10 @@ export default class Contract extends Component<Props, State> {
               name,
               selector,
               original,
-              isConstant: method.constant || method.stateMutability === 'pure' || method.stateMutability === 'view',
+              isConstant:
+                method.constant ||
+                method.stateMutability === 'pure' ||
+                method.stateMutability === 'view',
               inputs: method.inputs,
               outputs: method.outputs,
               isPayable: method.payable || method.stateMutability === 'payable'
@@ -299,7 +315,7 @@ export default class Contract extends Component<Props, State> {
       <div className="results">
         <Editor contract={contract} index={index} />
         {functions.length > 0
-          ? functions.map((func) => (
+          ? functions.map(func => (
               <Function
                 key={func.name}
                 func={func}

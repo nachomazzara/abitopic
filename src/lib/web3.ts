@@ -25,11 +25,7 @@ export function getWeb3Instance(): Web3 {
 
   if (!web3Instance || networkChanged) {
     chainId = ethereum ? ethereum.networkVersion : 0
-    web3Instance = new Web3(
-      ethereum
-        ? ethereum
-        : 'https://localhost:8545'
-    )
+    web3Instance = new Web3(ethereum ? ethereum : 'https://localhost:8545')
   }
   return web3Instance
 }

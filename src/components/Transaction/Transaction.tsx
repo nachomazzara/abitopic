@@ -4,7 +4,14 @@ import { TransactionReceipt } from 'web3-core/types'
 import { TransactionProps, TransactionState, TxData } from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
 import { getWeb3Instance, getDefaultAccount } from '../../lib/web3'
-import { getTxLink, getNetworkNameById, getMultisigContract, isMultisigTx, CUSTOM_NETWORK, MULTISIG_ELEMENT_NAME } from '../../lib/utils'
+import {
+  getTxLink,
+  getNetworkNameById,
+  getMultisigContract,
+  isMultisigTx,
+  CUSTOM_NETWORK,
+  MULTISIG_ELEMENT_NAME
+} from '../../lib/utils'
 import './Transaction.css'
 
 export default class Transaction extends PureComponent<
@@ -17,7 +24,7 @@ export default class Transaction extends PureComponent<
 
   constructor(props: TransactionProps) {
     super(props)
-    this.state = { data: '', link: '',  showMultisig: false, error: null }
+    this.state = { data: '', link: '', showMultisig: false, error: null }
   }
 
   componentWillReceiveProps() {
@@ -43,7 +50,10 @@ export default class Transaction extends PureComponent<
     } catch (e) {
       this.setState({
         data: '',
-        error: e.message
+        error:
+          e instanceof Error
+            ? e.message
+            : `An error has occured ${JSON.stringify(e)}`
       })
     }
   }
@@ -90,7 +100,10 @@ export default class Transaction extends PureComponent<
       this.setState({
         data: '',
         link: '',
-        error: e.message
+        error:
+          e instanceof Error
+            ? e.message
+            : `An error has occured ${JSON.stringify(e)}`
       })
     }
   }
@@ -114,7 +127,9 @@ export default class Transaction extends PureComponent<
 
       const transaction = {
         to: multisigAddress,
-        data: multisigContract.methods.submitTransaction(contract.options.address, value, data).encodeABI(),
+        data: multisigContract.methods
+          .submitTransaction(contract.options.address, value, data)
+          .encodeABI(),
         from,
         value
       }
@@ -131,23 +146,28 @@ export default class Transaction extends PureComponent<
         link: this.getLink(res as TransactionReceipt),
         error: null
       })
-
     } catch (e) {
       this.setState({
         data: '',
         link: '',
-        error: e.message
+        error:
+          e instanceof Error
+            ? e.message
+            : `An error has occured ${JSON.stringify(e)}`
       })
     }
   }
 
   showMultisig = () => {
-    this.setState({showMultisig: !this.state.showMultisig})
+    this.setState({ showMultisig: !this.state.showMultisig })
   }
 
   isSameNetwork = async (): Promise<boolean> => {
     const netId = await this.web3.eth.net.getId()
-    return this.network === CUSTOM_NETWORK || this.network === getNetworkNameById(netId)
+    return (
+      this.network === CUSTOM_NETWORK ||
+      this.network === getNetworkNameById(netId)
+    )
   }
 
   getCall = (data: string): string => {
@@ -202,12 +222,16 @@ export default class Transaction extends PureComponent<
       }
     }
 
-    return { data: contract.methods[funcName](...params).encodeABI(), value, multisigAddress }
+    return {
+      data: contract.methods[funcName](...params).encodeABI(),
+      value,
+      multisigAddress
+    }
   }
 
   render() {
     const { data, link, showMultisig, error } = this.state
-    const { isPayable, inputs , isConstant, funcName } = this.props
+    const { isPayable, inputs, isConstant, funcName } = this.props
 
     const isMultisigTransaction = isMultisigTx(funcName)
 
@@ -242,26 +266,29 @@ export default class Transaction extends PureComponent<
           <button type="submit" onClick={this.sendTxData}>
             {isConstant ? 'Query' : 'Send Transaction'}
           </button>
-          { !isConstant && !isMultisigTransaction  && <>
-            <button type="button" onClick={this.showMultisig}>
-            {'Send with legacy Gnosis multisig'}
-          </button>
-          {showMultisig && <>
-            <div key={`${funcName}-multisig`} className="input-row">
-              <label>{MULTISIG_ELEMENT_NAME}</label>
-              <input
-                key={`${funcName}-multisig-address`}
-                type="text"
-                name={MULTISIG_ELEMENT_NAME}
-                placeholder={`0x1234....`}
-              />
-            </div>
-            <button type="submit" onClick={this.sendTxDataWithMultisig}>
-              {'Send Transaction'}
-            </button>
-          </>}
-          </>
-          }
+          {!isConstant && !isMultisigTransaction && (
+            <>
+              <button type="button" onClick={this.showMultisig}>
+                {'Send with legacy Gnosis multisig'}
+              </button>
+              {showMultisig && (
+                <>
+                  <div key={`${funcName}-multisig`} className="input-row">
+                    <label>{MULTISIG_ELEMENT_NAME}</label>
+                    <input
+                      key={`${funcName}-multisig-address`}
+                      type="text"
+                      name={MULTISIG_ELEMENT_NAME}
+                      placeholder={`0x1234....`}
+                    />
+                  </div>
+                  <button type="submit" onClick={this.sendTxDataWithMultisig}>
+                    {'Send Transaction'}
+                  </button>
+                </>
+              )}
+            </>
+          )}
         </form>
         {error && <p className="data error">{error}</p>}
         {data && <Text text={data} className="data" />}

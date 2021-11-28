@@ -4,7 +4,6 @@ const KEY_NETWORK = `${KEY_BASE}network`
 const KEY_CONTRACT = `${KEY_LAST_USED}contract`
 const KEY_CODE = `${KEY_LAST_USED}code`
 
-
 export type LastUsedContract = {
   address: string
   abi: any
@@ -24,8 +23,14 @@ export function getLastUsedNetwork(index?: number): string {
   return data ? data : 'mainnet'
 }
 
-export function saveLastUsedContract(options: LastUsedContract, index?: number) {
-  window.localStorage.setItem(getKey(KEY_CONTRACT, index), JSON.stringify(options))
+export function saveLastUsedContract(
+  options: LastUsedContract,
+  index?: number
+) {
+  window.localStorage.setItem(
+    getKey(KEY_CONTRACT, index),
+    JSON.stringify(options)
+  )
 }
 
 export function getLastUsedContract(index?: number): LastUsedContract | null {
