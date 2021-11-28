@@ -4,7 +4,7 @@ import { TransactionReceipt } from 'web3-core/types'
 import { TransactionProps, TransactionState, TxData } from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
 import { getWeb3Instance, getDefaultAccount } from '../../lib/web3'
-import { getTxLink, getNetworkNameById, getMultisigContract, CUSTOM_NETWORK, MULTISIG_ELEMENT_NAME } from '../../lib/utils'
+import { getTxLink, getNetworkNameById, getMultisigContract, isMultisigTx, CUSTOM_NETWORK, MULTISIG_ELEMENT_NAME } from '../../lib/utils'
 import './Transaction.css'
 
 export default class Transaction extends PureComponent<
@@ -209,6 +209,8 @@ export default class Transaction extends PureComponent<
     const { data, link, showMultisig, error } = this.state
     const { isPayable, inputs , isConstant, funcName } = this.props
 
+    const isMultisigTransaction = isMultisigTx(funcName)
+
     return (
       <React.Fragment>
         <form>
@@ -240,7 +242,7 @@ export default class Transaction extends PureComponent<
           <button type="submit" onClick={this.sendTxData}>
             {isConstant ? 'Query' : 'Send Transaction'}
           </button>
-          { !isConstant  && <>
+          { !isConstant && !isMultisigTransaction  && <>
             <button type="button" onClick={this.showMultisig}>
             {'Send with legacy Gnosis multisig'}
           </button>

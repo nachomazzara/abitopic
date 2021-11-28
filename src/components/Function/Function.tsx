@@ -4,7 +4,7 @@ import { FunctionProps, FunctionState, mulitisigTx } from './types'
 import Transaction from '../../components/Transaction' // @TODO: components as paths
 import Text from '../../components/Text' // @TODO: components as paths'
 import { MultisigTxInfoModal } from '../../components/Modals'
-import { isConfirmMultisigTx } from '../../lib/utils'
+import { isMultisigTx } from '../../lib/utils'
 
 import './Function.css'
 
@@ -19,7 +19,9 @@ export default class Function extends PureComponent<FunctionProps, FunctionState
   componentDidMount() {
     this.mounted = true
 
-    if (isConfirmMultisigTx(this.props.func.name)) {
+    const name = this.props.func.name
+
+    if (isMultisigTx(name)) {
       this.fetchMultisigTx()
     }
   }
@@ -70,7 +72,7 @@ export default class Function extends PureComponent<FunctionProps, FunctionState
   render() {
     const { pendingTxIds, isModalOpen, currentMultisigTx } = this.state
     const { func, contract, blockNumber } = this.props
-    const isConfirmTx = isConfirmMultisigTx(func.name)
+    const isMultisigTransaction = isMultisigTx(func.name)
 
     return (
       <React.Fragment>
@@ -81,7 +83,7 @@ export default class Function extends PureComponent<FunctionProps, FunctionState
             {'[Selector]'}
             <Text text={func.selector} />
           </p>
-          {isConfirmTx && pendingTxIds.length > 0 && <div className="multisig-txs-wrapper">
+          {isMultisigTransaction && pendingTxIds.length > 0 && <div className="multisig-txs-wrapper">
             <p className="confirm-tx">{`Pending txs to confirm: `}</p>
             {pendingTxIds.map(tx => <button type="button" key={tx.id} className="multisig-tx-info" onClick={() => this.showMultisigTxInfoModal(tx)}>{tx.id}</button>)}
             </div>

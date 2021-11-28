@@ -238,6 +238,14 @@ export function isConfirmMultisigTx(funcName: string) {
   return funcName === 'confirmTransaction(uint256)'
 }
 
+export function isRevokeMultisigTx(funcName: string) {
+  return funcName === 'revokeConfirmation(uint256)'
+}
+
+export function isMultisigTx(funcName: string) {
+  return isConfirmMultisigTx(funcName) || isRevokeMultisigTx(funcName)
+}
+
 export function getMultisigContract(address: string) {
   const web3 = getWeb3Instance()
 
