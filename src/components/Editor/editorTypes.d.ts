@@ -86,11 +86,7 @@ declare interface BN {
     length?: number
   ): Buffer
 
-  toArrayLike(
-    ArrayType: any[],
-    endian?: Endianness,
-    length?: number
-  ): any[]
+  toArrayLike(ArrayType: any[], endian?: Endianness, length?: number): any[]
 
   /**
    * @description  convert to Node.js Buffer (if available). For compatibility with browserify and similar tools, use this instead: a.toArrayLike(Buffer, endian, length)
@@ -584,16 +580,13 @@ declare interface SignedTransaction {
 }
 
 declare interface Extension {
-  property?: string,
+  property?: string
   methods: any[]
 }
 
 declare interface Providers {
   HttpProvider: any
-  WebsocketProvider: new (
-    host: string,
-    options?: any
-  ) => any
+  WebsocketProvider: new (host: string, options?: any) => any
   IpcProvider: new (path: string, net: any) => IpcProvider
 }
 
@@ -620,10 +613,7 @@ declare interface PromiEvent<T> extends Promise<T> {
     handler: (error: Error | TransactionReceipt | string) => void
   ): PromiEvent<T>
 
-  on(
-    type: 'transactionHash',
-    handler: (receipt: string) => void
-  ): PromiEvent<T>
+  on(type: 'transactionHash', handler: (receipt: string) => void): PromiEvent<T>
 
   on(
     type: 'receipt',
@@ -671,12 +661,7 @@ declare interface TransactionConfig {
   hardfork?: string
 }
 
-declare type chain =
-  | 'mainnet'
-  | 'goerli'
-  | 'kovan'
-  | 'rinkeby'
-  | 'ropsten'
+declare type chain = 'mainnet' | 'goerli' | 'kovan' | 'rinkeby' | 'ropsten'
 
 declare type hardfork =
   | 'chainstart'
@@ -945,7 +930,6 @@ declare type provider =
   | string
   | null
 
-
 declare type Unit =
   | 'noether'
   | 'wei'
@@ -980,13 +964,13 @@ declare type Mixed =
   | number
   | BN
   | {
-    type: string
-    value: string
-  }
+      type: string
+      value: string
+    }
   | {
-    t: string
-    v: string | BN | number
-  }
+      t: string
+      v: string | BN | number
+    }
   | boolean
 
 declare type Hex = string | number
@@ -1004,7 +988,10 @@ declare function hexToAscii(string: string): string
 declare function toAscii(string: string): string
 declare function bytesToHex(bytes: number[]): string
 declare function numberToHex(value: number | string | BN): string
-declare function checkAddressChecksum(address: string, chainId?: number): boolean
+declare function checkAddressChecksum(
+  address: string,
+  chainId?: number
+): boolean
 declare function fromAscii(string: string): string
 declare function fromDecimal(value: string | number): string
 declare function fromUtf8(string: string): string
@@ -1015,10 +1002,26 @@ declare function hexToNumberString(hex: Hex): string
 declare function hexToString(hex: Hex): string
 declare function hexToUtf8(string: string): string
 declare function keccak256(value: string | BN): string
-declare function padLeft(value: string | number, characterAmount: number, sign?: string): string
-declare function leftPad(string: string | number, characterAmount: number, sign?: string): string
-declare function rightPad(string: string | number, characterAmount: number, sign?: string): string
-declare function padRight(string: string | number, characterAmount: number, sign?: string): string
+declare function padLeft(
+  value: string | number,
+  characterAmount: number,
+  sign?: string
+): string
+declare function leftPad(
+  string: string | number,
+  characterAmount: number,
+  sign?: string
+): string
+declare function rightPad(
+  string: string | number,
+  characterAmount: number,
+  sign?: string
+): string
+declare function padRight(
+  string: string | number,
+  characterAmount: number,
+  sign?: string
+): string
 declare function sha3(value: string | BN): string
 declare function randomHex(bytesSize: number): string
 declare function utf8ToHex(string: string): string
@@ -1031,8 +1034,14 @@ declare function toWei(val: BN, unit?: Unit): BN
 declare function toWei(val: string, unit?: Unit): string
 declare function isBloom(bloom: string): boolean
 declare function isInBloom(bloom: string, value: string | Uint8Array): boolean
-declare function isUserEthereumAddressInBloom(bloom: string, ethereumAddress: string): boolean
-declare function isContractAddressInBloom(bloom: string, contractAddress: string): boolean
+declare function isUserEthereumAddressInBloom(
+  bloom: string,
+  ethereumAddress: string
+): boolean
+declare function isContractAddressInBloom(
+  bloom: string,
+  contractAddress: string
+): boolean
 declare function isTopicInBloom(bloom: string, topic: string): boolean
 declare function isTopic(topic: string): boolean
 declare function jsonInterfaceMethodToString(abiItem: AbiItem): string
@@ -1041,7 +1050,9 @@ declare function getUnitValue(unit: Unit): string
 declare function unitMap(): Units
 declare function testAddress(bloom: string, address: string): boolean
 declare function testTopic(bloom: string, topic: string): boolean
-declare function getSignatureParameters(signature: string): { r: string; s: string; v: number }
+declare function getSignatureParameters(
+  signature: string
+): { r: string; s: string; v: number }
 declare function stripHexPrefix(str: string): string
 
 // interfaces
@@ -1069,10 +1080,26 @@ declare interface Utils {
   hexToString(hex: Hex): string
   hexToUtf8(string: string): string
   keccak256(value: string | BN): string
-  padLeft(value: string | number, characterAmount: number, sign?: string): string
-  leftPad(string: string | number, characterAmount: number, sign?: string): string
-  rightPad(string: string | number, characterAmount: number, sign?: string): string
-  padRight(string: string | number, characterAmount: number, sign?: string): string
+  padLeft(
+    value: string | number,
+    characterAmount: number,
+    sign?: string
+  ): string
+  leftPad(
+    string: string | number,
+    characterAmount: number,
+    sign?: string
+  ): string
+  rightPad(
+    string: string | number,
+    characterAmount: number,
+    sign?: string
+  ): string
+  padRight(
+    string: string | number,
+    characterAmount: number,
+    sign?: string
+  ): string
   sha3(value: string | BN): string
   randomHex(bytesSize: number): string
   utf8ToHex(string: string): string
@@ -1156,7 +1183,6 @@ declare interface AbiOutput {
   components?: AbiOutput[]
 }
 
-
 declare interface Subscription<T> {
   constructor(options: SubscriptionOptions)
 
@@ -1217,7 +1243,6 @@ declare interface SubscriptionModel {
   subscriptionHandler: () => void
 }
 
-
 declare interface AbiCoder {
   encodeFunctionSignature(functionName: string | AbiItem): string
 
@@ -1239,7 +1264,6 @@ declare interface AbiCoder {
     topics: string[]
   ): { [key: string]: string }
 }
-
 
 declare interface Ens {
   constructor(eth: any)
@@ -1345,10 +1369,9 @@ declare interface Registry {
   resolver(name: string): Promise<Contract>
 }
 
+declare interface Accounts extends AccountsBase {}
 
-declare interface Accounts extends AccountsBase { }
-
-declare interface Wallet extends WalletBase { }
+declare interface Wallet extends WalletBase {}
 
 declare interface Sign extends SignedTransaction {
   message: string
@@ -1361,7 +1384,6 @@ declare interface SignatureObject {
   s: string
   v: string
 }
-
 
 declare interface Personal {
   constructor(provider: provider)
@@ -1423,9 +1445,7 @@ declare interface Personal {
 }
 
 declare interface Iban {
-  constructor(
-    iban: string
-  )
+  constructor(iban: string)
 
   toAddress(iban: string): string
 
@@ -1534,9 +1554,7 @@ declare interface Eth {
     callback?: (error: Error, coinbaseAddress: string) => void
   ): Promise<string>
 
-  isMining(
-    callback?: (error: Error, mining: boolean) => void
-  ): Promise<boolean>
+  isMining(callback?: (error: Error, mining: boolean) => void): Promise<boolean>
 
   getHashrate(
     callback?: (error: Error, hashes: number) => void
@@ -1662,10 +1680,7 @@ declare interface Eth {
 
   getTransactionReceipt(
     hash: string,
-    callback?: (
-      error: Error,
-      transactionReceipt: TransactionReceipt
-    ) => void
+    callback?: (error: Error, transactionReceipt: TransactionReceipt) => void
   ): Promise<TransactionReceipt>
 
   getTransactionCount(address: string): Promise<number>
@@ -1701,10 +1716,7 @@ declare interface Eth {
 
   signTransaction(
     transactionConfig: TransactionConfig,
-    callback?: (
-      error: Error,
-      signedTransaction: RLPEncodedTransaction
-    ) => void
+    callback?: (error: Error, signedTransaction: RLPEncodedTransaction) => void
   ): Promise<RLPEncodedTransaction>
   signTransaction(
     transactionConfig: TransactionConfig,
@@ -1713,10 +1725,7 @@ declare interface Eth {
   signTransaction(
     transactionConfig: TransactionConfig,
     address: string,
-    callback: (
-      error: Error,
-      signedTransaction: RLPEncodedTransaction
-    ) => void
+    callback: (error: Error, signedTransaction: RLPEncodedTransaction) => void
   ): Promise<RLPEncodedTransaction>
 
   call(transactionConfig: TransactionConfig): Promise<string>
@@ -1921,7 +1930,6 @@ declare interface EventData {
   address: string
 }
 
-
 declare interface Options extends ContractOptions {
   address: string
   jsonInterface: AbiItem[]
@@ -1984,10 +1992,7 @@ declare interface Contract {
 
   methods: any
 
-  once(
-    event: string,
-    callback: (error: Error, event: EventData) => void
-  ): void
+  once(event: string, callback: (error: Error, event: EventData) => void): void
   once(
     event: string,
     options: EventOptions,

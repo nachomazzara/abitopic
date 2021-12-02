@@ -17,3 +17,16 @@ export type FunctionProps = {
   contract: Contract
   blockNumber: string
 }
+
+export type FunctionState = {
+  pendingTxIds: mulitisigTx[]
+  currentMultisigTx: mulitisigTx | null
+  isModalOpen: boolean
+}
+
+export type mulitisigTx = {
+  id: number
+  to: string
+  value: number
+  data: string
+}

@@ -4,7 +4,14 @@ import { TransactionReceipt } from 'web3-core/types'
 import { TransactionProps, TransactionState, TxData } from './types'
 import Text from '../../components/Text' // @TODO: components as paths'
 import { getWeb3Instance, getDefaultAccount } from '../../lib/web3'
-import { getTxLink, getNetworkNameById, CUSTOM_NETWORK } from '../../lib/utils'
+import {
+  getTxLink,
+  getNetworkNameById,
+  getMultisigContract,
+  isMultisigTx,
+  CUSTOM_NETWORK,
+  MULTISIG_ELEMENT_NAME
+} from '../../lib/utils'
 import './Transaction.css'
 
 export default class Transaction extends PureComponent<
@@ -17,7 +24,7 @@ export default class Transaction extends PureComponent<
 
   constructor(props: TransactionProps) {
     super(props)
-    this.state = { data: '', link: '', error: null }
+    this.state = { data: '', link: '', showMultisig: false, error: null }
   }
 
   componentWillReceiveProps() {
@@ -35,7 +42,7 @@ export default class Transaction extends PureComponent<
   showTxData = (event: React.FormEvent<any>) => {
     event.preventDefault()
     try {
-      const { data } = this.getData(event)
+      const { data } = this.getData(event.currentTarget)
       this.setState({
         data: data,
         error: null
@@ -43,7 +50,10 @@ export default class Transaction extends PureComponent<
     } catch (e) {
       this.setState({
         data: '',
-        error: e.message
+        error:
+          e instanceof Error
+            ? e.message
+            : `An error has occured ${JSON.stringify(e)}`
       })
     }
   }
@@ -55,7 +65,7 @@ export default class Transaction extends PureComponent<
     const web3 = getWeb3Instance()
 
     try {
-      const { data, value } = this.getData(event)
+      const { data, value } = this.getData(event.currentTarget.form)
       const from = await getDefaultAccount()
 
       const transaction = {
@@ -90,14 +100,74 @@ export default class Transaction extends PureComponent<
       this.setState({
         data: '',
         link: '',
-        error: e.message
+        error:
+          e instanceof Error
+            ? e.message
+            : `An error has occured ${JSON.stringify(e)}`
       })
     }
   }
 
+  sendTxDataWithMultisig = async (event: React.FormEvent<any>) => {
+    event.preventDefault()
+
+    const { contract } = this.props
+    const web3 = getWeb3Instance()
+
+    try {
+      const form = event.currentTarget.form
+      const { data, value, multisigAddress } = this.getData(form)
+      const from = await getDefaultAccount()
+
+      if (!multisigAddress) {
+        throw new Error('Multisig address is missing')
+      }
+
+      const multisigContract = getMultisigContract(multisigAddress)
+
+      const transaction = {
+        to: multisigAddress,
+        data: multisigContract.methods
+          .submitTransaction(contract.options.address, value, data)
+          .encodeABI(),
+        from,
+        value
+      }
+
+      if (!(await this.isSameNetwork())) {
+        throw new Error(
+          `Your wallet is not on ${this.network}. Please, switch your wallet to ${this.network} if you want to interact with the contract.`
+        )
+      }
+
+      const res = await web3.eth.sendTransaction(transaction)
+
+      this.setState({
+        link: this.getLink(res as TransactionReceipt),
+        error: null
+      })
+    } catch (e) {
+      this.setState({
+        data: '',
+        link: '',
+        error:
+          e instanceof Error
+            ? e.message
+            : `An error has occured ${JSON.stringify(e)}`
+      })
+    }
+  }
+
+  showMultisig = () => {
+    this.setState({ showMultisig: !this.state.showMultisig })
+  }
+
   isSameNetwork = async (): Promise<boolean> => {
     const netId = await this.web3.eth.net.getId()
-    return this.network === CUSTOM_NETWORK || this.network === getNetworkNameById(netId)
+    return (
+      this.network === CUSTOM_NETWORK ||
+      this.network === getNetworkNameById(netId)
+    )
   }
 
   getCall = (data: string): string => {
@@ -123,31 +193,47 @@ export default class Transaction extends PureComponent<
     return `${getTxLink(this.network)}/${receipt.transactionHash}`
   }
 
-  getData = (event: React.FormEvent<any>): TxData => {
+  getData = (elements: React.InputHTMLAttributes<any>[]): TxData => {
     const { contract, funcName, isPayable } = this.props
-    const elements = event.currentTarget.form
+    let multisigAddress = ''
     const params = []
     let value = '0'
 
     for (let i = 0; i < elements.length; i++) {
       const element = elements[i]
-      if (isPayable && i === 0) {
-        value = this.web3.utils.toWei(element.value).toString()
+      if (!element.name || !element.value) {
         continue
       }
+
+      if (element.name === MULTISIG_ELEMENT_NAME) {
+        multisigAddress = element.value.toString()
+        continue
+      }
+
+      if (isPayable && i === 0 && element.value) {
+        value = this.web3.utils.toWei(element.value.toString()).toString()
+        continue
+      }
+
       if (element.name.indexOf('[') !== -1) {
-        params.push(this.toArrayInput(element.value))
+        params.push(this.toArrayInput(element.value.toString()))
       } else if (element.type === 'text') {
         params.push(element.value)
       }
     }
 
-    return { data: contract.methods[funcName](...params).encodeABI(), value }
+    return {
+      data: contract.methods[funcName](...params).encodeABI(),
+      value,
+      multisigAddress
+    }
   }
 
   render() {
-    const { data, link, error } = this.state
-    const { isPayable, inputs, outputs, funcName } = this.props
+    const { data, link, showMultisig, error } = this.state
+    const { isPayable, inputs, isConstant, funcName } = this.props
+
+    const isMultisigTransaction = isMultisigTx(funcName)
 
     return (
       <React.Fragment>
@@ -164,7 +250,7 @@ export default class Transaction extends PureComponent<
             </div>
           )}
           {inputs.map((input, index: number) => (
-            <div key={index} className="input-row">
+            <div key={`${funcName}-${index}`} className="input-row">
               <label>{input.name}</label>
               <input
                 key={`${funcName}-${index}`}
@@ -178,8 +264,31 @@ export default class Transaction extends PureComponent<
             {'Get raw data'}
           </button>
           <button type="submit" onClick={this.sendTxData}>
-            {outputs.length > 0 ? 'Query' : 'Send Transaction'}
+            {isConstant ? 'Query' : 'Send Transaction'}
           </button>
+          {!isConstant && !isMultisigTransaction && (
+            <>
+              <button type="button" onClick={this.showMultisig}>
+                {'Send with legacy Gnosis multisig'}
+              </button>
+              {showMultisig && (
+                <>
+                  <div key={`${funcName}-multisig`} className="input-row">
+                    <label>{MULTISIG_ELEMENT_NAME}</label>
+                    <input
+                      key={`${funcName}-multisig-address`}
+                      type="text"
+                      name={MULTISIG_ELEMENT_NAME}
+                      placeholder={`0x1234....`}
+                    />
+                  </div>
+                  <button type="submit" onClick={this.sendTxDataWithMultisig}>
+                    {'Send Transaction'}
+                  </button>
+                </>
+              )}
+            </>
+          )}
         </form>
         {error && <p className="data error">{error}</p>}
         {data && <Text text={data} className="data" />}

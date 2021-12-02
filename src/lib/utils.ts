@@ -16,7 +16,6 @@ export const TOPICS_FOR_PROXYS = [
   }
 ]
 
-
 export const CHAINS = {
   ETHEREUM_MAINNET: { value: 'mainnet', label: 'Ethereum Mainnet', id: 1 },
   ETHEREUM_ROPSTEN: { value: 'ropsten', label: 'Ropsten Testnet', id: 3 },
@@ -33,9 +32,8 @@ export const CHAINS = {
   MATIC_MUMBAI: { value: 'mumbai', label: 'Matic Mumbai', id: 80001 }
 }
 
-
 export const CUSTOM_NETWORK = 'custom'
-
+export const MULTISIG_ELEMENT_NAME = 'Multisig address'
 
 function isEthereumChain(network: string) {
   return (
@@ -49,12 +47,15 @@ function isEthereumChain(network: string) {
 
 function isMaticChain(network: string) {
   return (
-    network === CHAINS.MATIC_MAINNET.value || network === CHAINS.MATIC_MUMBAI.value
+    network === CHAINS.MATIC_MAINNET.value ||
+    network === CHAINS.MATIC_MUMBAI.value
   )
 }
 
 function isBSCChain(network: string) {
-  return network === CHAINS.BSC_MAINNET.value || network === CHAINS.BSC_TESTNET.value
+  return (
+    network === CHAINS.BSC_MAINNET.value || network === CHAINS.BSC_TESTNET.value
+  )
 }
 
 export function getAPIKey(network: string) {
@@ -75,18 +76,21 @@ export function getAPIKey(network: string) {
 
 export function getAPI(network: string): string {
   if (isEthereumChain(network)) {
-    return `https://api${network !== 'mainnet' ? `-${network}` : ''
-      }.etherscan.io/api`
+    return `https://api${
+      network !== 'mainnet' ? `-${network}` : ''
+    }.etherscan.io/api`
   }
 
   if (isBSCChain(network)) {
-    return `https://api${network === CHAINS.BSC_TESTNET.value ? '-testnet' : ''
-      }.bscscan.com/api`
+    return `https://api${
+      network === CHAINS.BSC_TESTNET.value ? '-testnet' : ''
+    }.bscscan.com/api`
   }
 
   if (isMaticChain(network)) {
-    return `https://api${network === CHAINS.MATIC_MUMBAI.value ? '-testnet' : ''
-      }.polygonscan.com/api`
+    return `https://api${
+      network === CHAINS.MATIC_MUMBAI.value ? '-testnet' : ''
+    }.polygonscan.com/api`
   }
 
   console.warn(`Could not find any API for the chain: ${network}`)
@@ -96,18 +100,21 @@ export function getAPI(network: string): string {
 
 export function getTxLink(network: string): string {
   if (isEthereumChain(network)) {
-    return `https://${network !== 'mainnet' ? `${network}.` : ''
-      }etherscan.io/tx`
+    return `https://${
+      network !== 'mainnet' ? `${network}.` : ''
+    }etherscan.io/tx`
   }
 
   if (isBSCChain(network)) {
-    return `https://${network === CHAINS.BSC_TESTNET.value ? 'testnet.' : ''
-      }bscscan.com/tx`
+    return `https://${
+      network === CHAINS.BSC_TESTNET.value ? 'testnet.' : ''
+    }bscscan.com/tx`
   }
 
   if (isMaticChain(network)) {
-    return `https://${network === CHAINS.MATIC_MUMBAI.value ? 'mumbai.' : ''
-      }polygonscan.com/tx`
+    return `https://${
+      network === CHAINS.MATIC_MUMBAI.value ? 'mumbai.' : ''
+    }polygonscan.com/tx`
   }
 
   console.warn(`Could not find any API for the chain: ${network}`)
@@ -194,42 +201,400 @@ export function getNetworkNameById(id: number): string {
   return chain ? chain.value : ''
 }
 
-export function isOS() {
+export function isIOS() {
   return navigator.userAgent.match(/ipad|iphone/i)
 }
 
 // Replace `methods: any` to `{ methodName: (params: types) Promise<any>}`
 export function typeContractMethods(editorTypes: string, contract: Contract) {
   const methodTypes = `methods: {
-    ${contract!.options.jsonInterface.map((method: any) => {
-    let inputs = ''
+    ${contract!.options.jsonInterface
+      .map((method: any) => {
+        let inputs = ''
 
-    method.inputs.forEach((input: any, index: number) => {
-      if (index > 0) {
-        inputs += ', '
-      }
+        method.inputs.forEach((input: any, index: number) => {
+          if (index > 0) {
+            inputs += ', '
+          }
 
-      inputs += input.name
-        ? input.name
-        : method.inputs.length > 1
-          ? `${input.type}_${index}`
-          : input.type
+          inputs += input.name
+            ? input.name
+            : method.inputs.length > 1
+            ? `${input.type}_${index}`
+            : input.type
 
-      if (input.type.indexOf('int') !== -1) {
-        inputs += ': number'
-      } else {
-        inputs += ': string'
-      }
+          if (input.type.indexOf('int') !== -1) {
+            inputs += ': number'
+          } else {
+            inputs += ': string'
+          }
 
-      if (input.type.indexOf('[]') !== -1) {
-        inputs += `[]`
-      }
-    })
+          if (input.type.indexOf('[]') !== -1) {
+            inputs += `[]`
+          }
+        })
 
-    return `${method.name}: (${inputs}) => any`
-  })
+        return `${method.name}: (${inputs}) => any`
+      })
       .join('\n')}
   }`
 
   return editorTypes.replace('contractMethods: any', methodTypes)
+}
+
+export function isConfirmMultisigTx(funcName: string) {
+  return funcName === 'confirmTransaction(uint256)'
+}
+
+export function isRevokeMultisigTx(funcName: string) {
+  return funcName === 'revokeConfirmation(uint256)'
+}
+
+export function isMultisigTx(funcName: string) {
+  return isConfirmMultisigTx(funcName) || isRevokeMultisigTx(funcName)
+}
+
+export function getMultisigContract(address: string) {
+  const web3 = getWeb3Instance()
+
+  return new web3.eth.Contract(getLegacyMultisigABI(), address) as any // Types are getting crazy. Not gonna spend more time on this.
+}
+
+function getLegacyMultisigABI(): AbiItem[] {
+  return [
+    {
+      constant: true,
+      inputs: [{ name: '', type: 'uint256' }],
+      name: 'owners',
+      outputs: [{ name: '', type: 'address' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [{ name: 'owner', type: 'address' }],
+      name: 'removeOwner',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [{ name: 'transactionId', type: 'uint256' }],
+      name: 'revokeConfirmation',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [{ name: '', type: 'address' }],
+      name: 'isOwner',
+      outputs: [{ name: '', type: 'bool' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [{ name: '', type: 'uint256' }, { name: '', type: 'address' }],
+      name: 'confirmations',
+      outputs: [{ name: '', type: 'bool' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'calcMaxWithdraw',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [
+        { name: 'pending', type: 'bool' },
+        { name: 'executed', type: 'bool' }
+      ],
+      name: 'getTransactionCount',
+      outputs: [{ name: 'count', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'dailyLimit',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'lastDay',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [{ name: 'owner', type: 'address' }],
+      name: 'addOwner',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [{ name: 'transactionId', type: 'uint256' }],
+      name: 'isConfirmed',
+      outputs: [{ name: '', type: 'bool' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [{ name: 'transactionId', type: 'uint256' }],
+      name: 'getConfirmationCount',
+      outputs: [{ name: 'count', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [{ name: '', type: 'uint256' }],
+      name: 'transactions',
+      outputs: [
+        { name: 'destination', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'data', type: 'bytes' },
+        { name: 'executed', type: 'bool' }
+      ],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'getOwners',
+      outputs: [{ name: '', type: 'address[]' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [
+        { name: 'from', type: 'uint256' },
+        { name: 'to', type: 'uint256' },
+        { name: 'pending', type: 'bool' },
+        { name: 'executed', type: 'bool' }
+      ],
+      name: 'getTransactionIds',
+      outputs: [{ name: '_transactionIds', type: 'uint256[]' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [{ name: 'transactionId', type: 'uint256' }],
+      name: 'getConfirmations',
+      outputs: [{ name: '_confirmations', type: 'address[]' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'transactionCount',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [{ name: '_required', type: 'uint256' }],
+      name: 'changeRequirement',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [{ name: 'transactionId', type: 'uint256' }],
+      name: 'confirmTransaction',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [
+        { name: 'destination', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'data', type: 'bytes' }
+      ],
+      name: 'submitTransaction',
+      outputs: [{ name: 'transactionId', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [{ name: '_dailyLimit', type: 'uint256' }],
+      name: 'changeDailyLimit',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'MAX_OWNER_COUNT',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'required',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [
+        { name: 'owner', type: 'address' },
+        { name: 'newOwner', type: 'address' }
+      ],
+      name: 'replaceOwner',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: false,
+      inputs: [{ name: 'transactionId', type: 'uint256' }],
+      name: 'executeTransaction',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'spentToday',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [
+        { name: '_owners', type: 'address[]' },
+        { name: '_required', type: 'uint256' },
+        { name: '_dailyLimit', type: 'uint256' }
+      ],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'constructor'
+    },
+    { payable: true, stateMutability: 'payable', type: 'fallback' },
+    {
+      anonymous: false,
+      inputs: [{ indexed: false, name: 'dailyLimit', type: 'uint256' }],
+      name: 'DailyLimitChange',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        { indexed: true, name: 'sender', type: 'address' },
+        { indexed: true, name: 'transactionId', type: 'uint256' }
+      ],
+      name: 'Confirmation',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        { indexed: true, name: 'sender', type: 'address' },
+        { indexed: true, name: 'transactionId', type: 'uint256' }
+      ],
+      name: 'Revocation',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [{ indexed: true, name: 'transactionId', type: 'uint256' }],
+      name: 'Submission',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [{ indexed: true, name: 'transactionId', type: 'uint256' }],
+      name: 'Execution',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [{ indexed: true, name: 'transactionId', type: 'uint256' }],
+      name: 'ExecutionFailure',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        { indexed: true, name: 'sender', type: 'address' },
+        { indexed: false, name: 'value', type: 'uint256' }
+      ],
+      name: 'Deposit',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [{ indexed: true, name: 'owner', type: 'address' }],
+      name: 'OwnerAddition',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [{ indexed: true, name: 'owner', type: 'address' }],
+      name: 'OwnerRemoval',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [{ indexed: false, name: 'required', type: 'uint256' }],
+      name: 'RequirementChange',
+      type: 'event'
+    }
+  ]
 }

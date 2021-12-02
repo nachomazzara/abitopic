@@ -17,7 +17,7 @@ export default class Text extends PureComponent<TextProps> {
     return (
       <React.Fragment>
         <textarea
-          readOnly
+          readOnly={true}
           ref={textarea => {
             if (textarea) {
               textarea!.style.height = textarea!.scrollHeight + 'px'

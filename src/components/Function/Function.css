@@ -1,0 +1,25 @@
+.App .results .result .multisig-txs-wrapper {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  color: #383838;
+}
+
+.App .results .result .multisig-txs-wrapper .confirm-tx {
+  font-weight: 600;
+  font-size: 16px;
+  color: #383838;
+  margin-top: 0;
+}
+
+.App .results .result .multisig-txs-wrapper .multisig-tx-info {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 7px;
+  font-size: 16px;
+  color: #383838;
+  text-decoration: underline;
+}
