@@ -42,7 +42,7 @@ export default class Transaction extends PureComponent<
   showTxData = (event: React.FormEvent<any>) => {
     event.preventDefault()
     try {
-      const { data } = this.getData(event.currentTarget)
+      const { data } = this.getData(event.currentTarget.form)
       this.setState({
         data: data,
         error: null
