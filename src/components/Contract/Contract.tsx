@@ -232,12 +232,12 @@ export default class Contract extends Component<Props, State> {
 
         switch (method.type) {
           case 'event': {
-            const signature = this.web3.utils.sha3(name)
+            const signature = this.web3.eth.abi.encodeEventSignature(method)
             events.push({ name, signature, original })
             break
           }
           case 'function': {
-            const selector = this.web3.eth.abi.encodeFunctionSignature(name)
+            const selector = this.web3.eth.abi.encodeFunctionSignature(method)
             functions.push({
               name,
               selector,
