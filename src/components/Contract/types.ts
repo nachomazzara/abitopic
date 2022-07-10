@@ -8,6 +8,7 @@ export type State = {
   contract: Contract | null
   address: string
   abi: any
+  sourceCode: string | null
   originalABI: any
   events: EventType[] | null
   functions: Func[] | null
