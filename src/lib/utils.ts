@@ -35,6 +35,13 @@ export const CHAINS = {
 export const CUSTOM_NETWORK = 'custom'
 export const MULTISIG_ELEMENT_NAME = 'Multisig address'
 
+// Old Zeppelin proxy
+const PROXY_POSITION =
+  '0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3'
+// https://eips.ethereum.org/EIPS/eip-1967 Zeppelin
+const TRANSPARENT_PROXY_POSITION =
+  '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
+
 function isEthereumChain(network: string) {
   return (
     network === CHAINS.ETHEREUM_MAINNET.value ||
@@ -76,21 +83,18 @@ export function getAPIKey(network: string) {
 
 export function getAPI(network: string): string {
   if (isEthereumChain(network)) {
-    return `https://api${
-      network !== 'mainnet' ? `-${network}` : ''
-    }.etherscan.io/api`
+    return `https://api${network !== 'mainnet' ? `-${network}` : ''
+      }.etherscan.io/api`
   }
 
   if (isBSCChain(network)) {
-    return `https://api${
-      network === CHAINS.BSC_TESTNET.value ? '-testnet' : ''
-    }.bscscan.com/api`
+    return `https://api${network === CHAINS.BSC_TESTNET.value ? '-testnet' : ''
+      }.bscscan.com/api`
   }
 
   if (isMaticChain(network)) {
-    return `https://api${
-      network === CHAINS.MATIC_MUMBAI.value ? '-testnet' : ''
-    }.polygonscan.com/api`
+    return `https://api${network === CHAINS.MATIC_MUMBAI.value ? '-testnet' : ''
+      }.polygonscan.com/api`
   }
 
   console.warn(`Could not find any API for the chain: ${network}`)
@@ -100,21 +104,18 @@ export function getAPI(network: string): string {
 
 export function getTxLink(network: string): string {
   if (isEthereumChain(network)) {
-    return `https://${
-      network !== 'mainnet' ? `${network}.` : ''
-    }etherscan.io/tx`
+    return `https://${network !== 'mainnet' ? `${network}.` : ''
+      }etherscan.io/tx`
   }
 
   if (isBSCChain(network)) {
-    return `https://${
-      network === CHAINS.BSC_TESTNET.value ? 'testnet.' : ''
-    }bscscan.com/tx`
+    return `https://${network === CHAINS.BSC_TESTNET.value ? 'testnet.' : ''
+      }bscscan.com/tx`
   }
 
   if (isMaticChain(network)) {
-    return `https://${
-      network === CHAINS.MATIC_MUMBAI.value ? 'mumbai.' : ''
-    }polygonscan.com/tx`
+    return `https://${network === CHAINS.MATIC_MUMBAI.value ? 'mumbai.' : ''
+      }polygonscan.com/tx`
   }
 
   console.warn(`Could not find any API for the chain: ${network}`)
@@ -140,13 +141,26 @@ export async function findABIForProxy(
       address = indexed
         ? getAddressByTopic(event, indexed!)
         : getAddressByData(event, dataIndex!)
-      if (address) {
+      if (address && address != '0x') {
         return address
       }
     }
   }
 
-  address = getAddressByStorageSlot(web3, network, proxyAddress)
+  address = await getAddressByStorageSlot(
+    web3,
+    network,
+    proxyAddress,
+    PROXY_POSITION
+  )
+  if (!address) {
+    address = await getAddressByStorageSlot(
+      web3,
+      network,
+      proxyAddress,
+      TRANSPARENT_PROXY_POSITION
+    )
+  }
 
   return address
 }
@@ -163,18 +177,24 @@ function getAddressByData(event: { data: string }, index: number) {
 async function getAddressByStorageSlot(
   web3: any,
   network: string,
-  proxyAddress: string
+  proxyAddress: string,
+  storagePosition: string
 ): Promise<string | undefined> {
   const baseAPI = getAPI(network)
   const apiKey = getAPIKey(network)
 
   const res = await fetch(
-    `${baseAPI}?module=proxy&action=eth_getStorageAt&apikey=${apiKey}&address=${proxyAddress}&position=0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3&tag=latest`
+    `${baseAPI}?module=proxy&action=eth_getStorageAt&apikey=${apiKey}&address=${proxyAddress}&position=${storagePosition}&tag=latest`
   )
   const data = (await res.json()).result
 
   let address
-  if (data && web3.utils.isAddress(data.slice(-40))) {
+  if (
+    data &&
+    data !=
+    '0x0000000000000000000000000000000000000000000000000000000000000000' &&
+    web3.utils.isAddress(data.slice(-40))
+  ) {
     address = `0x${data.slice(-40)}`
   }
 
@@ -220,8 +240,8 @@ export function typeContractMethods(editorTypes: string, contract: Contract) {
           inputs += input.name
             ? input.name
             : method.inputs.length > 1
-            ? `${input.type}_${index}`
-            : input.type
+              ? `${input.type}_${index}`
+              : input.type
 
           if (input.type.indexOf('int') !== -1) {
             inputs += ': number'
