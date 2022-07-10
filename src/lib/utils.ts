@@ -73,7 +73,7 @@ export function getAPIKey(network: string) {
     return 'XUB8PMY81UWB8TFVIN8A36SZUG1Q7H4ZD5'
   }
   if (isMaticChain(network)) {
-    return ''
+    return 'VNZGFJTJI9T2PDCKAM188BGJC1UJ4ETJCE'
   }
 
   console.warn(`Could not find any API Key for the chain: ${network}`)
