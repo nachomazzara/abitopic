@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
-import { Contract as Web3Contract } from 'web3-eth-contract'
+import MonacoEditor from 'react-monaco-editor'
+import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api'
 import { getWeb3Instance } from '../../lib/web3'
-import { findABIForProxy, sanitizeABI } from '../../lib/utils'
+import {
+  findABIForProxy,
+  getFlattenSourceCode,
+  sanitizeABI
+} from '../../lib/utils'
 import {
   saveLastUsedContract,
   getLastUsedContract,
@@ -20,7 +25,8 @@ import './Contract.css'
 
 const TABS = {
   FUNCTIONS: 'Functions',
-  EVENTS: 'Events'
+  EVENTS: 'Events',
+  SOURCE_CODE: 'Source Code'
 }
 
 export default class Contract extends Component<Props, State> {
@@ -35,6 +41,7 @@ export default class Contract extends Component<Props, State> {
     this.state = {
       contract: null,
       abi: abi,
+      sourceCode: null,
       originalABI: null,
       events: null,
       functions: null,
@@ -132,6 +139,15 @@ export default class Contract extends Component<Props, State> {
     this.saveAction({})
   }
 
+  getSourceCode = async (network, address) => {
+    try {
+      const sourceCode = await getFlattenSourceCode(network, address)
+      this.setState({ sourceCode })
+    } catch (e) {
+      console.log(e.message)
+    }
+  }
+
   setContractName = async () => {
     const { contract } = this.state
     try {
@@ -174,6 +190,10 @@ export default class Contract extends Component<Props, State> {
       )
       if (implementationAddress) {
         await this.getABI(implementationAddress, api)
+        await this.getSourceCode(
+          network ? network : this.props.network,
+          implementationAddress
+        )
       } else {
         this.setState({
           error: (
@@ -188,6 +208,7 @@ export default class Contract extends Component<Props, State> {
       }
     } else {
       await this.getABI(address, api)
+      await this.getSourceCode(network ? network : this.props.network, address)
     }
 
     this.setState({
@@ -328,6 +349,39 @@ export default class Contract extends Component<Props, State> {
     )
   }
 
+  editorWillMount = (monaco: typeof monacoEditor) => {
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true
+    })
+  }
+
+  renderSourceCode = () => {
+    const { sourceCode } = this.state
+
+    return (
+      <div className="source-code">
+        <MonacoEditor
+          height="750"
+          language="typescript"
+          theme="vs-dark"
+          value={Object.keys(sourceCode).reduce((acc, key) => {
+            acc += '\n' + '//' + key + '\n\n' + sourceCode[key].content
+            return acc
+          }, '')}
+          editorWillMount={this.editorWillMount}
+          options={{
+            automaticLayout: true,
+            quickSuggestions: false,
+            lineNumbers: 'on',
+            minimap: { enabled: false },
+            fontSize: 11
+          }}
+        />
+      </div>
+    )
+  }
+
   renderEmptyResult = () => <p className="no-results">No results...</p>
 
   filterBySearch = (data: any) =>
@@ -429,6 +483,14 @@ export default class Contract extends Component<Props, State> {
               </div>
               <div>
                 <a
+                  className={this.isActive(TABS.SOURCE_CODE) ? 'active' : ''}
+                  onClick={() => this.onChangeTab(TABS.SOURCE_CODE)}
+                >
+                  {TABS.SOURCE_CODE}
+                </a>
+              </div>
+              <div>
+                <a
                   className={this.isActive(TABS.FUNCTIONS) ? 'active' : ''}
                   onClick={() => this.onChangeTab(TABS.FUNCTIONS)}
                 >
@@ -444,18 +506,21 @@ export default class Contract extends Component<Props, State> {
                 )}
               </div>
             </div>
-            <div className="search">
-              <input
-                type="text"
-                value={search}
-                onChange={this.handleSearchChange}
-                placeholder="Search..."
-              />
-            </div>
+            {!this.isActive(TABS.SOURCE_CODE) && (
+              <div className="search">
+                <input
+                  type="text"
+                  value={search}
+                  onChange={this.handleSearchChange}
+                  placeholder="Search..."
+                />
+              </div>
+            )}
             {this.isActive(TABS.EVENTS) &&
               this.renderEvents(this.filterBySearch(events))}
             {this.isActive(TABS.FUNCTIONS) &&
               this.renderFunctions(this.filterBySearch(functions))}
+            {this.isActive(TABS.SOURCE_CODE) && this.renderSourceCode()}
           </React.Fragment>
         )}
       </>

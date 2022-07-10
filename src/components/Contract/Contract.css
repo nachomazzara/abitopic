@@ -202,6 +202,14 @@ textarea.abi:focus {
   display: none;
 }
 
+.App .source-code {
+  margin-bottom: 60px;
+}
+
+.App .source-code .react-monaco-editor-container {
+  text-align: left;
+}
+
 @media (min-width: 620px) {
   .App .results .result p + p + p {
     font-size: 12px;

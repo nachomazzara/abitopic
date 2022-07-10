@@ -201,6 +201,17 @@ async function getAddressByStorageSlot(
   return address
 }
 
+export async function getFlattenSourceCode(network: string, address: string) {
+  const baseAPI = getAPI(network)
+  const apiKey = getAPIKey(network)
+
+  const res = await fetch(
+    `${baseAPI}?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`
+  )
+  return JSON.parse((await res.json()).result[0].SourceCode.slice(1, -1))
+    .sources
+}
+
 export function sanitizeABI(abi: string) {
   return abi
     .trim()
