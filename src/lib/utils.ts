@@ -208,8 +208,11 @@ export async function getFlattenSourceCode(network: string, address: string) {
   const res = await fetch(
     `${baseAPI}?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`
   )
-  return JSON.parse((await res.json()).result[0].SourceCode.slice(1, -1))
-    .sources
+  const sourceCode = (await res.json()).result[0].SourceCode
+
+  return sourceCode.indexOf('"sources":') !== -1
+    ? JSON.parse(sourceCode.slice(1, -1)).sources
+    : sourceCode
 }
 
 export function sanitizeABI(abi: string) {

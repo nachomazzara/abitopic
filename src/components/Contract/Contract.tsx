@@ -360,25 +360,40 @@ export default class Contract extends Component<Props, State> {
     const { sourceCode } = this.state
 
     return (
-      <div className="source-code">
-        <MonacoEditor
-          height="750"
-          language="typescript"
-          theme="vs-dark"
-          value={Object.keys(sourceCode).reduce((acc, key) => {
-            acc += '\n' + '//' + key + '\n\n' + sourceCode[key].content
-            return acc
-          }, '')}
-          editorWillMount={this.editorWillMount}
-          options={{
-            automaticLayout: true,
-            quickSuggestions: false,
-            lineNumbers: 'on',
-            minimap: { enabled: false },
-            fontSize: 11
-          }}
-        />
-      </div>
+      <>
+        {sourceCode ? (
+          <div className="source-code">
+            <MonacoEditor
+              height="750"
+              language="typescript"
+              theme="vs-dark"
+              value={
+                typeof sourceCode === 'string'
+                  ? sourceCode
+                  : Object.keys(sourceCode).reduce((acc, key) => {
+                      acc +=
+                        '\n' +
+                        '//' +
+                        key +
+                        '\n\n' +
+                        (sourceCode[key] as any).content
+                      return acc
+                    }, '')
+              }
+              editorWillMount={this.editorWillMount}
+              options={{
+                automaticLayout: true,
+                quickSuggestions: false,
+                lineNumbers: 'on',
+                minimap: { enabled: false },
+                fontSize: 11
+              }}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
+      </>
     )
   }
 
