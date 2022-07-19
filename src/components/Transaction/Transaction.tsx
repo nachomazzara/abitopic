@@ -215,6 +215,14 @@ export default class Transaction extends PureComponent<
         continue
       }
 
+      if (element.name === 'bool') {
+        params.push(
+          element.value.toString().toLowerCase() !== 'false' &&
+            element.value.toString().toLowerCase() !== '0'
+        )
+        continue
+      }
+
       if (element.name.indexOf('[') !== -1) {
         params.push(this.toArrayInput(element.value.toString()))
       } else if (element.type === 'text') {
