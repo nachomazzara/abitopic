@@ -39,6 +39,9 @@ export default class Transaction extends PureComponent<
       .replace(']', '')
       .split(',')
 
+  toBooleanInput = (input: string) =>
+    input.toLowerCase() !== 'false' && input.toLowerCase() !== '0'
+
   showTxData = (event: React.FormEvent<any>) => {
     event.preventDefault()
     try {
@@ -216,15 +219,18 @@ export default class Transaction extends PureComponent<
       }
 
       if (element.name === 'bool') {
-        params.push(
-          element.value.toString().toLowerCase() !== 'false' &&
-            element.value.toString().toLowerCase() !== '0'
-        )
+        params.push(this.toBooleanInput(element.value.toString()))
         continue
       }
 
       if (element.name.indexOf('[') !== -1) {
-        params.push(this.toArrayInput(element.value.toString()))
+        if (element.name.indexOf('bool') !== -1) {
+          params.push(
+            this.toArrayInput(element.value.toString()).map(this.toBooleanInput)
+          )
+        } else {
+          params.push(this.toArrayInput(element.value.toString()))
+        }
       } else if (element.type === 'text') {
         params.push(element.value)
       }
