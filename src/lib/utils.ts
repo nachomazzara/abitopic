@@ -210,9 +210,15 @@ export async function getFlattenSourceCode(network: string, address: string) {
   )
   const sourceCode = (await res.json()).result[0].SourceCode
 
-  return sourceCode.indexOf('"sources":') !== -1
-    ? JSON.parse(sourceCode.slice(1, -1)).sources
-    : sourceCode
+  if (sourceCode.indexOf('"sources":') !== -1) {
+    return JSON.parse(sourceCode.slice(1, -1)).sources
+  }
+
+  if (sourceCode.indexOf('.sol":{"content":') !== -1) {
+    return JSON.parse(sourceCode)
+  }
+
+  return sourceCode
 }
 
 export function sanitizeABI(abi: string) {
