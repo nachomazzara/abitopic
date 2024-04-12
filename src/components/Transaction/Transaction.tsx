@@ -223,7 +223,9 @@ export default class Transaction extends PureComponent<
         continue
       }
 
-      if (element.name.indexOf('[') !== -1) {
+      if (element.name.indexOf('tuple[]') !== -1) { // tuple
+        params.push(JSON.parse(element.value.toString()))
+      } else if (element.name.indexOf('[') !== -1) { // array
         if (element.name.indexOf('bool') !== -1) {
           params.push(
             this.toArrayInput(element.value.toString()).map(this.toBooleanInput)

@@ -228,7 +228,8 @@ export default class Contract extends Component<Props, State> {
       for (const method of validABI) {
         if (!method.name) continue
 
-        const types = method.inputs.map((input: any) => input.type)
+        const types = method.inputs.map((input: any) => input.type === 'tuple[]' ? `(${input.components.map(component=> component.internalType).join(',')})[]`
+       : input.type)
         const name = `${method.name}(${types.join(',')})`
 
         const original = (
