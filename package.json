@@ -65,9 +65,9 @@
     "workbox-webpack-plugin": "3.6.3"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
-    "test": "node scripts/test.js",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider node scripts/start.js ",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js",
+    "test": "NODE_OPTIONS=--openssl-legacy-provider node scripts/test.js",
     "postinstall": "rm -f node_modules/web3/index.d.ts"
   },
   "eslintConfig": {
