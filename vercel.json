@@ -4,5 +4,4 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": null,
-  "nodeVersion": "22.x"
 }
