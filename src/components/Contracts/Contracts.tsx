@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Dropdown, { Option } from 'react-dropdown'
 
-import { getChains, getAPI, getAPIKey } from '../../lib/utils'
+import { getChains, getAPI, getAPIKey, getChainId } from '../../lib/utils'
 import Contract from '../../components/Contract'
 import { State } from './types'
 
@@ -18,9 +18,11 @@ export default class Contracts extends Component<any, State> {
 
     const baseAPI = getAPI(network)
     const apiKey = getAPIKey(network)
+    const chainId = getChainId(network)
+    const chainIdParam = chainId ? `&chainid=${chainId}` : ''
 
     this.state = {
-      apiNetwork: `${baseAPI}?apikey=${apiKey}&module=contract&action=getabi&address=`,
+      apiNetwork: `${baseAPI}?apikey=${apiKey}${chainIdParam}&module=contract&action=getabi&address=`,
       contracts: 1,
       network
     }
@@ -48,9 +50,11 @@ export default class Contracts extends Component<any, State> {
 
     const baseAPI = getAPI(newNetwork)
     const apiKey = getAPIKey(newNetwork)
+    const chainId = getChainId(newNetwork)
+    const chainIdParam = chainId ? `&chainid=${chainId}` : ''
 
     this.setState({
-      apiNetwork: `${baseAPI}?apikey=${apiKey}&module=contract&action=getabi&address=`,
+      apiNetwork: `${baseAPI}?apikey=${apiKey}${chainIdParam}&module=contract&action=getabi&address=`,
       network: newNetwork
     })
   }

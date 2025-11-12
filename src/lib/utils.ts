@@ -18,6 +18,7 @@ export const TOPICS_FOR_PROXYS = [
 
 export const CHAINS = {
   ETHEREUM_MAINNET: { value: 'mainnet', label: 'Ethereum Mainnet', id: 1 },
+  ETHEREUM_SEPOLIA: { value: 'sepolia', label: 'Sepolia Testnet', id: 11155111 },
   ETHEREUM_ROPSTEN: { value: 'ropsten', label: 'Ropsten Testnet', id: 3 },
   ETHEREUM_RINKEBY: { value: 'rinkeby', label: 'Rinkeby Testnet', id: 4 },
   ETHEREUM_GOERLI: { value: 'goerli', label: 'Goerli Testnet', id: 5 },
@@ -28,7 +29,8 @@ export const CHAINS = {
     label: 'Binance Smart Chain Testnet',
     id: 97
   },
-  MATIC_MAINNET: { value: 'matic', label: 'Matic Mainnet', id: 137 },
+  MATIC_MAINNET: { value: 'matic', label: 'Polygon Mainnet', id: 137 },
+  MATIC_AMOY: { value: 'amoy', label: 'Polygon Amoy', id: 80002 },
   MATIC_MUMBAI: { value: 'mumbai', label: 'Matic Mumbai', id: 80001 }
 }
 
@@ -42,59 +44,36 @@ const PROXY_POSITION =
 const TRANSPARENT_PROXY_POSITION =
   '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
 
-function isEthereumChain(network: string) {
-  return (
-    network === CHAINS.ETHEREUM_MAINNET.value ||
-    network === CHAINS.ETHEREUM_ROPSTEN.value ||
-    network === CHAINS.ETHEREUM_KOVAN.value ||
-    network === CHAINS.ETHEREUM_GOERLI.value ||
-    network === CHAINS.ETHEREUM_RINKEBY.value
-  )
-}
-
-function isMaticChain(network: string) {
-  return (
-    network === CHAINS.MATIC_MAINNET.value ||
-    network === CHAINS.MATIC_MUMBAI.value
-  )
-}
-
-function isBSCChain(network: string) {
-  return (
-    network === CHAINS.BSC_MAINNET.value || network === CHAINS.BSC_TESTNET.value
-  )
-}
+// Supported chains for Etherscan API v2
+const SUPPORTED_V2_CHAINS = [
+  CHAINS.ETHEREUM_MAINNET.id,
+  CHAINS.ETHEREUM_SEPOLIA.id,
+  CHAINS.ETHEREUM_ROPSTEN.id,
+  CHAINS.ETHEREUM_RINKEBY.id,
+  CHAINS.ETHEREUM_GOERLI.id,
+  CHAINS.ETHEREUM_KOVAN.id,
+  CHAINS.BSC_MAINNET.id,
+  CHAINS.BSC_TESTNET.id,
+  CHAINS.MATIC_MAINNET.id,
+  CHAINS.MATIC_AMOY.id,
+  CHAINS.MATIC_MUMBAI.id
+]
 
 export function getAPIKey(network: string) {
-  if (isEthereumChain(network)) {
-    return 'BPS6G2415Z1J5KV85FP76QFD3MXM1U39BU'
-  }
-  if (isBSCChain(network)) {
-    return 'XUB8PMY81UWB8TFVIN8A36SZUG1Q7H4ZD5'
-  }
-  if (isMaticChain(network)) {
-    return 'VNZGFJTJI9T2PDCKAM188BGJC1UJ4ETJCE'
-  }
+  return 'XSUCVPSMP9PE8ABF4SA3EF1UDDH9VPPGR6'
+}
 
-  console.warn(`Could not find any API Key for the chain: ${network}`)
-
-  return ''
+export function getChainId(network: string): number | null {
+  const chain = Object.values(CHAINS).find(chain => chain.value === network)
+  return chain ? chain.id : null
 }
 
 export function getAPI(network: string): string {
-  if (isEthereumChain(network)) {
-    return `https://api${network !== 'mainnet' ? `-${network}` : ''
-      }.etherscan.io/api`
-  }
-
-  if (isBSCChain(network)) {
-    return `https://api${network === CHAINS.BSC_TESTNET.value ? '-testnet' : ''
-      }.bscscan.com/api`
-  }
-
-  if (isMaticChain(network)) {
-    return `https://api${network === CHAINS.MATIC_MUMBAI.value ? '-testnet' : ''
-      }.polygonscan.com/api`
+  const chainId = getChainId(network)
+  
+  // Use v2 API for all supported chains
+  if (chainId && SUPPORTED_V2_CHAINS.includes(chainId)) {
+    return `https://api.etherscan.io/v2/api`
   }
 
   console.warn(`Could not find any API for the chain: ${network}`)
@@ -103,22 +82,38 @@ export function getAPI(network: string): string {
 }
 
 export function getTxLink(network: string): string {
-  if (isEthereumChain(network)) {
-    return `https://${network !== 'mainnet' ? `${network}.` : ''
-      }etherscan.io/tx`
+  const chainId = getChainId(network)
+  
+  if (!chainId) {
+    console.warn(`Could not find chain ID for network: ${network}`)
+    return ''
   }
 
-  if (isBSCChain(network)) {
-    return `https://${network === CHAINS.BSC_TESTNET.value ? 'testnet.' : ''
-      }bscscan.com/tx`
+  // Ethereum networks
+  if ([CHAINS.ETHEREUM_MAINNET.id, CHAINS.ETHEREUM_SEPOLIA.id, CHAINS.ETHEREUM_ROPSTEN.id, 
+       CHAINS.ETHEREUM_RINKEBY.id, CHAINS.ETHEREUM_GOERLI.id, CHAINS.ETHEREUM_KOVAN.id].includes(chainId)) {
+    const prefix = network === 'mainnet' ? '' : `${network}.`
+    return `https://${prefix}etherscan.io/tx`
   }
 
-  if (isMaticChain(network)) {
-    return `https://${network === CHAINS.MATIC_MUMBAI.value ? 'mumbai.' : ''
-      }polygonscan.com/tx`
+  // Binance Smart Chain
+  if ([CHAINS.BSC_MAINNET.id, CHAINS.BSC_TESTNET.id].includes(chainId)) {
+    const prefix = network === CHAINS.BSC_TESTNET.value ? 'testnet.' : ''
+    return `https://${prefix}bscscan.com/tx`
   }
 
-  console.warn(`Could not find any API for the chain: ${network}`)
+  // Polygon networks
+  if ([CHAINS.MATIC_MAINNET.id, CHAINS.MATIC_AMOY.id, CHAINS.MATIC_MUMBAI.id].includes(chainId)) {
+    if (network === CHAINS.MATIC_AMOY.value) {
+      return `https://amoy.polygonscan.com/tx`
+    }
+    if (network === CHAINS.MATIC_MUMBAI.value) {
+      return `https://mumbai.polygonscan.com/tx`
+    }
+    return `https://polygonscan.com/tx`
+  }
+
+  console.warn(`Could not find tx link for the chain: ${network}`)
 
   return ''
 }
@@ -130,7 +125,9 @@ export async function findABIForProxy(
   const web3 = getWeb3Instance()
   const baseAPI = getAPI(network)
   const apiKey = getAPIKey(network)
-  const api = `${baseAPI}?module=logs&&apikey=${apiKey}&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
+  const chainId = getChainId(network)
+  const chainIdParam = chainId ? `&chainid=${chainId}` : ''
+  const api = `${baseAPI}?module=logs&&apikey=${apiKey}${chainIdParam}&action=getLogs&fromBlock=0&toBlock=latest&limit=1&address=${proxyAddress}&topic0=`
 
   let address
   for (let { topic, indexed, dataIndex } of TOPICS_FOR_PROXYS) {
@@ -182,9 +179,11 @@ async function getAddressByStorageSlot(
 ): Promise<string | undefined> {
   const baseAPI = getAPI(network)
   const apiKey = getAPIKey(network)
+  const chainId = getChainId(network)
+  const chainIdParam = chainId ? `&chainid=${chainId}` : ''
 
   const res = await fetch(
-    `${baseAPI}?module=proxy&action=eth_getStorageAt&apikey=${apiKey}&address=${proxyAddress}&position=${storagePosition}&tag=latest`
+    `${baseAPI}?module=proxy&action=eth_getStorageAt&apikey=${apiKey}${chainIdParam}&address=${proxyAddress}&position=${storagePosition}&tag=latest`
   )
   const data = (await res.json()).result
 
@@ -204,9 +203,11 @@ async function getAddressByStorageSlot(
 export async function getFlattenSourceCode(network: string, address: string) {
   const baseAPI = getAPI(network)
   const apiKey = getAPIKey(network)
+  const chainId = getChainId(network)
+  const chainIdParam = chainId ? `&chainid=${chainId}` : ''
 
   const res = await fetch(
-    `${baseAPI}?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`
+    `${baseAPI}?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}${chainIdParam}`
   )
   const sourceCode = (await res.json()).result[0].SourceCode
 
