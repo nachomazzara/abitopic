@@ -1,7 +1,4 @@
 {
   "version": 2,
-  "name": "abitopic",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "framework": null
+  "name": "abitopic"
 }
