@@ -8,5 +8,5 @@ Works on Ropsten and Mainnet (default)
 
 ### [Try it](https://abitopic.imazzara.com)
 
-Note: This is my first project using react ts so a lot of `any` and bad things was made.
+Note: This is my first project using react ts so a lot of `any` and bad things was made. 
 
