@@ -1,4 +1,5 @@
 {
   "version": 2,
-  "name": "abitopic"
+  "name": "abitopic",
+  "installCommand": "npm install --legacy-peer-deps"
 }
